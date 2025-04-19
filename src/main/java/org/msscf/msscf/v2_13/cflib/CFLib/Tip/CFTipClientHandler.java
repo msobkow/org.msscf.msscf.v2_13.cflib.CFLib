@@ -62,10 +62,10 @@ public class CFTipClientHandler
 {
 
 	// The namespace URI of the supported schema
-	public final static String	SCHEMA_XMLNS = "uri://org.msscf/msscf/2.0.13/CFTipServerInfo";
+	public final static String	SCHEMA_XMLNS = "http://msscf.org:8088/msscf/2.0.13/CFTipServerInfo";
 
 	// The source for loading the supported schema
-	public final static String	SCHEMA_URI = "/opt/msscf/2.0.13/xsd/cftip-2.13-serverinfo.xsd";
+	public final static String	SCHEMA_URI = "http://msscf.org:8088/msscf/2.0.13/xsd/cftip-2.13-serverinfo.xsd";
 	public final static String	SCHEMA_ROOT_URI = "/xsd/cftip-2.13-serverinfo.xsd";
 
 	protected static Grammar myGrammar = null;
@@ -362,7 +362,7 @@ public class CFTipClientHandler
 			+	"\t\txmlns=\"uri://org.msscf.msscf/cftipenvelope\"\n"
 			+	"\t\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
 			+	"\t\txmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"
-			+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/cftipenvelope file:../bin/xsd/cftip-envelope.xsd\" >\n"
+			+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/cftipenvelope http://gitlab.marhome.server:8088/msscf/2.0.13/xsd/cftip-2.13-envelope.xsd\" >\n"
 			+	"\t<QueryServerInfo />\n"
 			+	"</CFTIPEnvelope>\n";
 		String response = sendReceive( msg );
@@ -439,7 +439,7 @@ public class CFTipClientHandler
 			+	"\t\txmlns=\"uri://org.msscf.msscf/cftipenvelope\"\n"
 			+	"\t\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
 			+	"\t\txmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"
-			+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/cftipenvelope file:../bin/xsd/cftip-envelope.xsd\" >\n"
+			+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/cftipenvelope http://gitlab.markhome.server:8088/msscf/2.0.13/xsd/cftip-envelope.xsd\" >\n"
 			+	"\t<LoginRequest MessageIV=\"" + stringIV + "\" AES256Key=\"" + stringSessionKey + "\" Payload=\"" + encoded + "\" />\n"
 			+	"</CFTIPEnvelope>\n";
 		String response = sendReceive( msg );
@@ -510,7 +510,7 @@ public class CFTipClientHandler
 			+	"\t\txmlns=\"uri://org.msscf.msscf/cftipenvelope\"\n"
 			+	"\t\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
 			+	"\t\txmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"
-			+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/cftipenvelope file:../bin/xsd/cftip-envelope.xsd\" >\n"
+			+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/cftipenvelope http://gitlab.markhome.server:8088/msscf/2.0.13/xsd/cftip-2.13-envelope.xsd\" >\n"
 			+	"\t<AppRequest MessageIV=\"" + stringIV + "\" Payload=\"" + encoded + "\" />\n"
 			+	"</CFTIPEnvelope>\n";
 		String response = sendReceive( msg );

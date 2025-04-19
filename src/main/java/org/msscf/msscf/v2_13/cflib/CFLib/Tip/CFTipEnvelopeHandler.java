@@ -63,10 +63,10 @@ public class CFTipEnvelopeHandler
 	implements ContentHandler
 {
 	// The namespace URI of the supported schema
-	public final static String	SCHEMA_XMLNS = "uri://org.msscf/msscf/2.0.13/cftipenvelope";
+	public final static String	SCHEMA_XMLNS = "http://msscf.org:8088/msscf/2.0.13/cftipenvelope";
 
 	// The source for loading the supported schema
-	public final static String	SCHEMA_URI = "/opt/msscf/2.0.13/xsd/cftip-2.13-envelope.xsd";
+	public final static String	SCHEMA_URI = "http://msscf.org:8088/msscf/2.0.13/xsd/cftip-2.13-envelope.xsd";
 	public final static String	SCHEMA_ROOT_URI = "/xsd/cftip-2.13-envelope.xsd";
 
 	protected static Grammar myGrammar = null;
@@ -619,7 +619,7 @@ public class CFTipEnvelopeHandler
 					+	"\t\txmlns=\"uri://org.msscf.msscf/CFTipServerInfo\"\n"
 					+	"\t\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
 					+	"\t\txmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n"
-					+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/CFTipServerInfo file:../bin/xsd/cftip-serverinfo.xsd\""
+					+	"\t\txsi:schemaLocation=\"uri://org.msscf.msscf/CFTipServerInfo http://gitlab.marhome.server:8088/msscf/2.0.13/xsd/cftip-2.13-serverinfo.xsd\""
 					+	"\t\tClusterURL=\"" + CFLibXmlUtil.formatXmlString( clusterURL ) + "\"\n"
 					+	"\t\tClusterDescr=\"" + CFLibXmlUtil.formatXmlString( clusterDescr ) + "\"\n"
 					+	"\t\tSchemaName=\"" + CFLibXmlUtil.formatXmlString( schemaName ) + "\"\n"
