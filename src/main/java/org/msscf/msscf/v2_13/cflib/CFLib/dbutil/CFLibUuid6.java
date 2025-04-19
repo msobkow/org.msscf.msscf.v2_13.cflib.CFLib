@@ -4,18 +4,23 @@
  */
 package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 /**
  *
  * @author msobkow
  */
-public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> {
+@Embeddable
+public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> {
     public static final int IPV6_LENGTH = 16;
     public static final int IPV4_LENGTH = 4;
     public static final int IPV4_PAD = IPV6_LENGTH - IPV4_LENGTH;
@@ -44,6 +49,14 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
     public final static int STRING_LENGTH = (NUM_BYTES * 2) + 6;
     
     private static volatile int seqGen = 0;
+
+    /*
+     * The random number generator used by this class to create random
+     * based UUIDs. In a holder class to defer initialization until needed.
+     */
+    private static class Holder {
+        static final SecureRandom numberGenerator = new SecureRandom();
+    }
     
     /**
      * Explicit serialVersionUID for interoperability.
@@ -51,10 +64,12 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
     @java.io.Serial
     private static final long serialVersionUID = 202504190939L;
 
-    private final byte[] data = new byte[NUM_BYTES];
+    @Convert(converter = CFLibUuid6Converter.class)
+    @Column(name = "bytes", nullable = false)
+    private final byte[] bytes = new byte[NUM_BYTES];
 
     public byte[] getBytes() {
-        return data;
+        return bytes;
     }
     
     private static boolean addrHeaderInitialized = false;
@@ -171,13 +186,13 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
     // Constructors and Factories
 
     /*
-     * Private constructor which uses a byte array to construct the new Uuid6.
+     * JPA needs access to this formerly private constructor which uses a byte array to construct the new Uuid6.
      */
-    private CFLibUuid6(byte[] data) {
+    public CFLibUuid6(byte[] data) {
         assert data != null;
         assert data.length >= NUM_BYTES;
         for (int i = 0; i < NUM_BYTES; i++) {
-            this.data[i] = data[i];
+            this.bytes[i] = data[i];
         }
     }
 
@@ -188,37 +203,57 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
      */
     public static CFLibUuid6 generateUuid6() {
         initAddrHeader();
-        byte[] randomBytes = new byte[NUM_BYTES];
+        byte[] genBytes = new byte[NUM_BYTES];
         long ts = System.currentTimeMillis() >> 4;
-        randomBytes[STAMP_START] = (byte)((ts >> (5*8))&0xff);
-        randomBytes[STAMP_START+1] = (byte)((ts >> (4*8))&0xff);
-        randomBytes[STAMP_START+2] = (byte)((ts >> (3*8))&0xff);
-        randomBytes[STAMP_START+3] = (byte)((ts >> (2*8))&0xff);
-        randomBytes[STAMP_START+4] = (byte)((ts >> (1*8))&0xff);
-        randomBytes[STAMP_START+5] = (byte)((ts)&0xff);
-        randomBytes[VERSION_AND_VARIANT_START] = (byte)0x10;
-        randomBytes[VERSION_AND_VARIANT_START+1] = (byte)0x80;
+        genBytes[STAMP_START] = (byte)((ts >> (5*8))&0xff);
+        genBytes[STAMP_START+1] = (byte)((ts >> (4*8))&0xff);
+        genBytes[STAMP_START+2] = (byte)((ts >> (3*8))&0xff);
+        genBytes[STAMP_START+3] = (byte)((ts >> (2*8))&0xff);
+        genBytes[STAMP_START+4] = (byte)((ts >> (1*8))&0xff);
+        genBytes[STAMP_START+5] = (byte)((ts)&0xff);
+        genBytes[VERSION_AND_VARIANT_START] = (byte)0x10;
+        genBytes[VERSION_AND_VARIANT_START+1] = (byte)0x80;
         int sq = seqGen++;
-        randomBytes[SEQUENCE_START] = (byte)((sq>>(3*8))&0xff);
-        randomBytes[SEQUENCE_START+1] = (byte)((sq>>(2*8))&0xff);
-        randomBytes[SEQUENCE_START+2] = (byte)((sq>>8)&0xff);
-        randomBytes[SEQUENCE_START+3] = (byte)(sq&0xff);
-        randomBytes[NODE0_START] = addrHeader[0];
-        randomBytes[NODE0_START+1] = addrHeader[1];
-        randomBytes[NODE0_START+2] = addrHeader[2];
-        randomBytes[NODE0_START+3] = addrHeader[3];
-        randomBytes[NODE1_START] = addrHeader[4];
-        randomBytes[NODE1_START+1] = addrHeader[5];
-        randomBytes[NODE1_START+2] = addrHeader[6];
-        randomBytes[NODE1_START+3] = addrHeader[7];
-        randomBytes[NODE2_START] = addrHeader[8];
-        randomBytes[NODE2_START+1] = addrHeader[9];
-        randomBytes[NODE2_START+2] = addrHeader[10];
-        randomBytes[NODE2_START+3] = addrHeader[11];
-        randomBytes[NODE3_START] = addrHeader[12];
-        randomBytes[NODE3_START+1] = addrHeader[13];
-        randomBytes[NODE3_START+2] = addrHeader[14];
-        randomBytes[NODE3_START+3] = addrHeader[15];
+        genBytes[SEQUENCE_START] = (byte)((sq>>(3*8))&0xff);
+        genBytes[SEQUENCE_START+1] = (byte)((sq>>(2*8))&0xff);
+        genBytes[SEQUENCE_START+2] = (byte)((sq>>8)&0xff);
+        genBytes[SEQUENCE_START+3] = (byte)(sq&0xff);
+        genBytes[NODE0_START] = addrHeader[0];
+        genBytes[NODE0_START+1] = addrHeader[1];
+        genBytes[NODE0_START+2] = addrHeader[2];
+        genBytes[NODE0_START+3] = addrHeader[3];
+        genBytes[NODE1_START] = addrHeader[4];
+        genBytes[NODE1_START+1] = addrHeader[5];
+        genBytes[NODE1_START+2] = addrHeader[6];
+        genBytes[NODE1_START+3] = addrHeader[7];
+        genBytes[NODE2_START] = addrHeader[8];
+        genBytes[NODE2_START+1] = addrHeader[9];
+        genBytes[NODE2_START+2] = addrHeader[10];
+        genBytes[NODE2_START+3] = addrHeader[11];
+        genBytes[NODE3_START] = addrHeader[12];
+        genBytes[NODE3_START+1] = addrHeader[13];
+        genBytes[NODE3_START+2] = addrHeader[14];
+        genBytes[NODE3_START+3] = addrHeader[15];
+        return new CFLibUuid6(genBytes);
+    }
+
+    /**
+     * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
+     *
+     * The {@code UUID} is generated using a cryptographically strong pseudo
+     * random number generator.
+     *
+     * @return  A randomly generated {@code UUID}
+     */
+    public static CFLibUuid6 randomUuid6() {
+        SecureRandom ng = Holder.numberGenerator;
+
+        byte[] randomBytes = new byte[NUM_BYTES];
+        ng.nextBytes(randomBytes);
+        randomBytes[VERSION_AND_VARIANT_START] &= 0x0f;
+        randomBytes[VERSION_AND_VARIANT_START] |= 0x40;
+        randomBytes[VERSION_AND_VARIANT_START+1] &= 0x3f;
+        randomBytes[VERSION_AND_VARIANT_START+1] |= 0x80;
         return new CFLibUuid6(randomBytes);
     }
 
@@ -407,7 +442,7 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
         
         byte[] shaBytes = md.digest(rawBytes);
         shaBytes[VERSION_AND_VARIANT_START]      &= 0x0f;  /* clear version        */
-        shaBytes[VERSION_AND_VARIANT_START]      |= 0x10;  /* set to version 4     */
+        shaBytes[VERSION_AND_VARIANT_START]      |= 0x40;  /* set to version 4     */
         shaBytes[VERSION_AND_VARIANT_START+1]    &= 0x3f;  /* clear variant        */
         shaBytes[VERSION_AND_VARIANT_START+1]    |= (byte) 0x80;  /* set to IETF variant  */
         return new CFLibUuid6(shaBytes);
@@ -438,7 +473,7 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
         }
         byte[] shaBytes = md.digest(name);
         shaBytes[VERSION_AND_VARIANT_START]      &= 0x0f;  /* clear version        */
-        shaBytes[VERSION_AND_VARIANT_START]      |= 0x10;  /* set to version 4     */
+        shaBytes[VERSION_AND_VARIANT_START]      |= 0x40;  /* set to version 4     */
         shaBytes[VERSION_AND_VARIANT_START+1]    &= 0x3f;  /* clear variant        */
         shaBytes[VERSION_AND_VARIANT_START+1]    |= (byte) 0x80;  /* set to IETF variant  */
         return new CFLibUuid6(shaBytes);
@@ -459,7 +494,7 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
      * @return  The version number of this {@code Uuid6}
      */
     public int version() {
-        return (data[VERSION_AND_VARIANT_START] & 0xf0) >> 4;
+        return (bytes[VERSION_AND_VARIANT_START] & 0xf0) >> 4;
     }
 
     /**
@@ -486,7 +521,7 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
         // 1    0    -    The IETF aka Leach-Salz variant (used by this class)
         // 1    1    0    Reserved, Microsoft backward compatibility
         // 1    1    1    Reserved for future definition.
-        return data[VERSION_AND_VARIANT_START+1] & 0x0f;
+        return bytes[VERSION_AND_VARIANT_START+1] & 0x0f;
     }
 
     /**
@@ -510,12 +545,12 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return ((long)(data[STAMP_START]) << (5*8)
-                | (long)(data[STAMP_START+1]) << (4*8)
-                | (long)(data[STAMP_START+2]) << (3*8)
-                | (long)(data[STAMP_START+3]) << (2*8)
-                | (long)(data[STAMP_START+4]) << (1*8)
-                | (long)(data[STAMP_START+5])) << 4;
+        return ((long)(bytes[STAMP_START]) << (5*8)
+                | (long)(bytes[STAMP_START+1]) << (4*8)
+                | (long)(bytes[STAMP_START+2]) << (3*8)
+                | (long)(bytes[STAMP_START+3]) << (2*8)
+                | (long)(bytes[STAMP_START+4]) << (1*8)
+                | (long)(bytes[STAMP_START+5])) << 4;
     }
 
     /**
@@ -539,10 +574,10 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return (((int)data[SEQUENCE_START] << (3*8)) & 0xff000000)
-                | (((int)data[SEQUENCE_START+1] << (2*8)) & 0xff0000)
-                | (((int)data[SEQUENCE_START+2] << 8) & 0xff00)
-                | (((int)data[SEQUENCE_START+3]) & 0xff);
+        return (((int)bytes[SEQUENCE_START] << (3*8)) & 0xff000000)
+                | (((int)bytes[SEQUENCE_START+1] << (2*8)) & 0xff0000)
+                | (((int)bytes[SEQUENCE_START+2] << 8) & 0xff00)
+                | (((int)bytes[SEQUENCE_START+3]) & 0xff);
     }
 
     /**
@@ -553,10 +588,10 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return (int)(data[NODE0_START]) << (3*8)
-                | (int)(data[NODE0_START+1]) << (2*8)
-                | (int)(data[NODE0_START+2]) << 8
-                | (int)(data[NODE0_START+3]);
+        return (int)(bytes[NODE0_START]) << (3*8)
+                | (int)(bytes[NODE0_START+1]) << (2*8)
+                | (int)(bytes[NODE0_START+2]) << 8
+                | (int)(bytes[NODE0_START+3]);
     }
 
     public int node1() {
@@ -564,10 +599,10 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return (int)(data[NODE1_START]) << (3*8)
-                | (int)(data[NODE1_START+1]) << (2*8)
-                | (int)(data[NODE1_START+2]) << 8
-                | (int)(data[NODE1_START+3]);
+        return (int)(bytes[NODE1_START]) << (3*8)
+                | (int)(bytes[NODE1_START+1]) << (2*8)
+                | (int)(bytes[NODE1_START+2]) << 8
+                | (int)(bytes[NODE1_START+3]);
     }
     
     public int node2() {
@@ -575,10 +610,10 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return (int)(data[NODE2_START]) << (3*8)
-                | (int)(data[NODE2_START+1]) << (2*8)
-                | (int)(data[NODE2_START+2]) << 8
-                | (int)(data[NODE2_START+3]);
+        return (int)(bytes[NODE2_START]) << (3*8)
+                | (int)(bytes[NODE2_START+1]) << (2*8)
+                | (int)(bytes[NODE2_START+2]) << 8
+                | (int)(bytes[NODE2_START+3]);
     }
     
     public int node3() {
@@ -586,10 +621,10 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return (int)(data[NODE3_START]) << (3*8)
-                | (int)(data[NODE3_START+1]) << (2*8)
-                | (int)(data[NODE3_START+2]) << 8
-                | (int)(data[NODE3_START+3]);
+        return (int)(bytes[NODE3_START]) << (3*8)
+                | (int)(bytes[NODE3_START+1]) << (2*8)
+                | (int)(bytes[NODE3_START+2]) << 8
+                | (int)(bytes[NODE3_START+3]);
     }
 
     // Object Inherited Methods
@@ -622,13 +657,13 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
      */
     @Override
     public String toString() {
-        return formatHexByte(data[STAMP_START]) + formatHexByte(data[STAMP_START+1]) + formatHexByte(data[STAMP_START+2]) + formatHexByte(data[STAMP_START+3]) + formatHexByte(data[STAMP_START+4]) + formatHexByte(data[STAMP_START+5])
-                + "-" + formatHexByte(data[VERSION_AND_VARIANT_START]) + formatHexByte(data[VERSION_AND_VARIANT_START+1])
-                + "-" + formatHexByte(data[SEQUENCE_START]) + formatHexByte(data[SEQUENCE_START+1]) + formatHexByte(data[SEQUENCE_START+2]) + formatHexByte(data[SEQUENCE_START+3])
-                + "-" + formatHexByte(data[NODE0_START]) + formatHexByte(data[NODE0_START+1]) + formatHexByte(data[NODE0_START+2]) + formatHexByte(data[NODE0_START+3])
-                + "-" + formatHexByte(data[NODE1_START]) + formatHexByte(data[NODE1_START+1]) + formatHexByte(data[NODE1_START+2]) + formatHexByte(data[NODE1_START+3])
-                + "-" + formatHexByte(data[NODE2_START]) + formatHexByte(data[NODE2_START+1]) + formatHexByte(data[NODE2_START+2]) + formatHexByte(data[NODE2_START+3])
-                + "-" + formatHexByte(data[NODE3_START]) + formatHexByte(data[NODE3_START+1]) + formatHexByte(data[NODE3_START+2]) + formatHexByte(data[NODE3_START+3]);
+        return formatHexByte(bytes[STAMP_START]) + formatHexByte(bytes[STAMP_START+1]) + formatHexByte(bytes[STAMP_START+2]) + formatHexByte(bytes[STAMP_START+3]) + formatHexByte(bytes[STAMP_START+4]) + formatHexByte(bytes[STAMP_START+5])
+                + "-" + formatHexByte(bytes[VERSION_AND_VARIANT_START]) + formatHexByte(bytes[VERSION_AND_VARIANT_START+1])
+                + "-" + formatHexByte(bytes[SEQUENCE_START]) + formatHexByte(bytes[SEQUENCE_START+1]) + formatHexByte(bytes[SEQUENCE_START+2]) + formatHexByte(bytes[SEQUENCE_START+3])
+                + "-" + formatHexByte(bytes[NODE0_START]) + formatHexByte(bytes[NODE0_START+1]) + formatHexByte(bytes[NODE0_START+2]) + formatHexByte(bytes[NODE0_START+3])
+                + "-" + formatHexByte(bytes[NODE1_START]) + formatHexByte(bytes[NODE1_START+1]) + formatHexByte(bytes[NODE1_START+2]) + formatHexByte(bytes[NODE1_START+3])
+                + "-" + formatHexByte(bytes[NODE2_START]) + formatHexByte(bytes[NODE2_START+1]) + formatHexByte(bytes[NODE2_START+2]) + formatHexByte(bytes[NODE2_START+3])
+                + "-" + formatHexByte(bytes[NODE3_START]) + formatHexByte(bytes[NODE3_START+1]) + formatHexByte(bytes[NODE3_START+2]) + formatHexByte(bytes[NODE3_START+3]);
     }
 
     /**
@@ -638,7 +673,7 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(data);
+        return Arrays.hashCode(bytes);
     }
 
     /**
@@ -659,7 +694,7 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
             return false;
         CFLibUuid6 id = (CFLibUuid6)obj;
         if (this == id) return true;
-        return Arrays.equals(data, id.data);
+        return Arrays.equals(bytes, id.bytes);
     }
 
     // Comparison Operations
@@ -686,6 +721,6 @@ public final class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibU
         if (this == val) {
             return 0;
         }
-        return Arrays.compare(data, val.data);
+        return Arrays.compare(bytes, val.bytes);
     }
 }

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class DbKey implements Serializable {
+public class CFLibDbKey implements Serializable {
     public static final int IPV6_LENGTH = 16;
     public static final int IPV4_LENGTH = 4;
     public static final int IPV4_PAD = IPV6_LENGTH - IPV4_LENGTH;
