@@ -30,9 +30,13 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
   static final int COUNTER_LENGTH = 8;
   static final int MACHINE_INDEX = 36;
   static final int MACHINE_LENGTH = 4;
-  static final int WGTID_INDEX = 40;
-  static final int WGTID_LENGTH = 4;
-  static final int TOTAL_BYTES = 44;
+  static final int PID_INDEX = 40;
+  static final int PID_LENGTH = 8;
+  static final int THREAD_INDEX = 48;
+  static final int THREAD_LENGTH = 8;
+  static final int RANDBYTES_INDEX = 56;
+  static final int RANDBYTES_LENGTH = 8;
+  static final int TOTAL_BYTES = 64;
   static final public  int HASH_LENGTH = 20; // SHA-1 hash size
   static final public int HASH_LENGTH_STRING = HASH_LENGTH * 2; // SHA-1 hash size as a string
   static final String HASH_ALGO = "SHA-1";
@@ -41,21 +45,26 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
   @Column(name = "bytes", nullable = false)
   protected byte[] bytes;
 
-  static final int CONCURRENT_DIGESTS = 32;
+  static final int CONCURRENT_DIGESTS = Runtime.getRuntime().availableProcessors() * 2;
   static final ByteBuffer[] hashBuffer = new ByteBuffer[CONCURRENT_DIGESTS];
-  static long counter = 1;
+  static volatile int rotator = 0;
+  static volatile long counter = 1;
   static final MessageDigest[] m = new MessageDigest[CONCURRENT_DIGESTS];
 
   static {
     try {
       CFLibDbHostAddr.initAddrHeader();
+      long pid = ProcessHandle.current().pid();
+      long tid = Thread.currentThread().getId();
       for (int i = 0; i < CONCURRENT_DIGESTS; i++) {
         CFLibUuid6 u = CFLibUuid6.generateUuid6();
         hashBuffer[i] = ByteBuffer.allocate(TOTAL_BYTES);
         System.arraycopy(u.getBytes(), 0, hashBuffer, 0, CFLibUuid6.TOTAL_BYTES);
         hashBuffer[i].putLong(COUNTER_INDEX, counter);
         hashBuffer[i].putInt(MACHINE_INDEX, 1);
-        hashBuffer[i].putInt(WGTID_INDEX, 1);
+        hashBuffer[i].putLong(PID_INDEX, pid);
+        hashBuffer[i].putLong(THREAD_INDEX, tid);
+        hashBuffer[i].putLong(RANDBYTES_INDEX, 1);
         m[i] = MessageDigest.getInstance(HASH_ALGO);
       }
     }
@@ -171,12 +180,13 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   public CFLibDbKeyHash160(int notUsed) {
-    int thid = (int) (Thread.currentThread().getId() % CONCURRENT_DIGESTS);
+    int thid = (int) (Math.abs(rotator++) % CONCURRENT_DIGESTS);
     synchronized (m[thid]) {
       while (true) {
         counter++;
         hashBuffer[thid].putLong(COUNTER_INDEX, counter);
-        hashBuffer[thid].putInt(WGTID_INDEX, (int) (Math.random() * Integer.MAX_VALUE));
+        hashBuffer[thid].putLong(THREAD_INDEX, Thread.currentThread().getId());
+        hashBuffer[thid].putLong(RANDBYTES_INDEX, (long) (Math.random() * Long.MAX_VALUE));
         m[thid].update(hashBuffer[thid].array(), 0, TOTAL_BYTES);
 
         bytes = m[thid].digest();
@@ -287,7 +297,7 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   static public String getNullString() {
-    return "00000000000000000000000000000000";
+    return "0000000000000000000000000000000000000000";
   }
 
   /**
@@ -300,8 +310,8 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
     if (newBytes == null) {
       throw new NullPointerException("newBytes must not be null.");
     }
-    if (newBytes.length != 16) {
-      throw new IllegalArgumentException("newBytes must be of length 16.");
+    if (newBytes.length != HASH_LENGTH) {
+      throw new IllegalArgumentException("newBytes must be of length " + HASH_LENGTH + ".");
     }
     bytes = newBytes.clone();
   }
@@ -478,7 +488,7 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
     }
   }
 
-  public static final CFLibDbKeyHash160[] toDbKeyHash16(String[] ids) {
+  public static final CFLibDbKeyHash160[] toCFLibDbKeyHash160(String[] ids) {
     if (ids == null) {
       return null;
     }
@@ -492,7 +502,7 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
     return r;
   }
 
-  public static final List<CFLibDbKeyHash160> toDbKeyHash16List(String[] ids) {
+  public static final List<CFLibDbKeyHash160> toCFLibDbKeyHash160List(String[] ids) {
 
     if (ids == null) {
       return null;
@@ -508,7 +518,7 @@ public class CFLibDbKeyHash160 implements Serializable, Comparator<CFLibDbKeyHas
 
   }
 
-  public static final Set<CFLibDbKeyHash160> toDbKeyHash16Set(String[] ids) {
+  public static final Set<CFLibDbKeyHash160> toCFLibDbKeyHash160Set(String[] ids) {
 
     if (ids == null) {
       return null;
