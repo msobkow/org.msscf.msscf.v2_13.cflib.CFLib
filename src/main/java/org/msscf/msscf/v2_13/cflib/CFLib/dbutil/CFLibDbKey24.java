@@ -4,27 +4,26 @@ import jakarta.persistence.*;
 import java.util.Arrays;
 
 @Embeddable
-public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24> {
+public class CFLibDbKey24 implements Comparable<CFLibDbKey24> {
 
     @Convert(converter = CFLibDbKey24Converter.class)
     @Column(name = "bytes", nullable = false)
     private byte[] bytes;
 
+    public static final int STAMP_LENGTH = 8;
+    public static final int HEADER_LENGTH = CFLibDbHostAddr.IPV6_LENGTH + STAMP_LENGTH;
     public static final int SUBKEY_LENGTH = 4;
     public static final int TOTAL_LENGTH = HEADER_LENGTH + SUBKEY_LENGTH;
-    private static final long serialVersionUID = 202504160340L;
+
+    private static final long serialVersionUID = 202505061637L;
 
     public CFLibDbKey24() {
-        if (!addrHeaderInitialized) {
-            initAddrHeader();
-        }
+        CFLibDbHostAddr.initAddrHeader();
         this.bytes = null;
     }
     
     public CFLibDbKey24(boolean generate) {
-        if (!addrHeaderInitialized) {
-            initAddrHeader();
-        }
+        CFLibDbHostAddr.initAddrHeader();
         this.bytes = null;
         initBytes(SUBKEY_LENGTH);
         if (generate) {
@@ -33,9 +32,7 @@ public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24>
     }
     
     public CFLibDbKey24(byte[] bytes) {
-        if (!addrHeaderInitialized) {
-            initAddrHeader();
-        }
+        CFLibDbHostAddr.initAddrHeader();
         this.bytes = null;
         initBytes(SUBKEY_LENGTH);
         setBytes(bytes);
@@ -43,9 +40,7 @@ public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24>
 
     @PrePersist
     private void ensureKeyInitialized() {
-        if (!addrHeaderInitialized) {
-            initAddrHeader();
-        }
+        CFLibDbHostAddr.initAddrHeader();
         if (isNull()) {
             generate();
         }
@@ -90,39 +85,39 @@ public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24>
 
     protected void initBytes(int subkeySize) {
         if (subkeySize < 4) {
-            throw new IllegalArgumentException("Subkey size must be at least 4 key");
+            throw new IllegalArgumentException("Subkey size must be at least 4 bytes");
         }
         if (subkeySize % 4 != 0) {
-            throw new IllegalArgumentException("Subkey size must be a multiple of 4 key");
+            throw new IllegalArgumentException("Subkey size must be a multiple of 4 bytes");
         }
-        if (subkeySize > 4096 - IPV6_LENGTH) {
-            throw new IllegalArgumentException("Subkey size must be less than or equal to " + (4096 - IPV6_LENGTH) + " key");
+        if (subkeySize > 4096 - CFLibDbHostAddr.IPV6_LENGTH) {
+            throw new IllegalArgumentException("Subkey size must be less than or equal to " + (4096 - CFLibDbHostAddr.IPV6_LENGTH) + " bytes");
         }
         if (bytes == null) {
             bytes = new byte[HEADER_LENGTH + subkeySize];
-            for (int i = 0; i < IPV4_LENGTH; i++) {
+            for (int i = 0; i < CFLibDbHostAddr.IPV4_LENGTH; i++) {
                 bytes[i] = 0;
             }
-            for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
+            for (int i = CFLibDbHostAddr.IPV4_LENGTH; i < CFLibDbHostAddr.IPV6_LENGTH; i++) {
                 bytes[i] = -1;
             }
-            for (int i = IPV6_LENGTH; i < HEADER_LENGTH; i++) {
+            for (int i = CFLibDbHostAddr.IPV6_LENGTH; i < HEADER_LENGTH; i++) {
                 bytes[i] = 0;
             }
 //        System.arraycopy(addrHeader, 0, key, 0, IPV6_LENGTH);
             for (int i = HEADER_LENGTH; i < bytes.length; i++) {
                 bytes[i] = 0;
             }
-        } else if (bytes.length < IPV6_LENGTH + subkeySize) {
+        } else if (bytes.length < CFLibDbHostAddr.IPV6_LENGTH + subkeySize) {
             throw new IllegalArgumentException("Existing bytes length must be at least " + (IPV6_LENGTH + subkeySize) + " key");
         } else {
-            for (int i = 0; i < IPV4_LENGTH; i++) {
+            for (int i = 0; i < CFLibDbHostAddr.IPV4_LENGTH; i++) {
                 bytes[i] = 0;
             }
-            for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
+            for (int i = CFLibDbHostAddr.IPV4_LENGTH; i < CFLibDbHostAddr.IPV6_LENGTH; i++) {
                 bytes[i] = -1;
             }
-            for (int i = IPV6_LENGTH; i < HEADER_LENGTH; i++) {
+            for (int i = CFLibDbHostAddr.IPV6_LENGTH; i < HEADER_LENGTH; i++) {
                 bytes[i] = 0;
             }
 //        System.arraycopy(addrHeader, 0, key, 0, IPV6_LENGTH);
@@ -136,17 +131,17 @@ public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24>
         if (bytes == null) {
             return true;
         }
-        for (int i = 0; i < IPV4_LENGTH; i++) {
+        for (int i = 0; i < CFLibDbHostAddr.IPV4_LENGTH; i++) {
             if (bytes[i] != 0) {
                 return false;
             }
         }
-        for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
+        for (int i = CFLibDbHostAddr.IPV4_LENGTH; i < CFLibDbHostAddr.IPV6_LENGTH; i++) {
             if (bytes[i] != -1) {
                 return false;
             };
         }
-        for (int i = IPV6_LENGTH; i < HEADER_LENGTH; i++) {
+        for (int i = CFLibDbHostAddr.IPV6_LENGTH; i < HEADER_LENGTH; i++) {
             if (bytes[i] != 0) {
                 return false;
             }
@@ -172,8 +167,8 @@ public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24>
         if (bytes == null) {
             throw new IllegalArgumentException("bytes cannot be null");
         }
-        if (bytes.length < IPV6_LENGTH) {
-            throw new IllegalArgumentException("bytes must be at least " + IPV6_LENGTH + " bytes long");
+        if (bytes.length < CFLibDbHostAddr.IPV6_LENGTH) {
+            throw new IllegalArgumentException("bytes must be at least " + CFLibDbHostAddr.IPV6_LENGTH + " bytes long");
         }
         if (bytes.length % 4 != 0) {
             throw new IllegalArgumentException("bytes length must be a multiple of 4 bytes");
@@ -193,14 +188,22 @@ public class CFLibDbKey24 extends CFLibDbKey implements Comparable<CFLibDbKey24>
         if (bytes == null) {
             throw new IllegalStateException("bytes not initialized. Call initBytes() first.");
         }
-        for (int i = 0; i < IPV6_LENGTH; i++) {
-            bytes[i] = addrHeader[i];
-        }
+        CFLibDbHostAddr.copyAddrHeaderTo(bytes, 0);
         long stamp = System.currentTimeMillis();
         for (int i = 0; i < STAMP_LENGTH; i++) {
-            bytes[IPV6_LENGTH + i] = (byte) ((stamp >> (i * 8)) & 0xFF);
+            bytes[CFLibDbHostAddr.IPV6_LENGTH + i] = (byte) ((stamp >> (i * 8)) & 0xFF);
         }
-        for (int i = STAMP_LENGTH; i < bytes.length; i++) {
+        for (int i = HEADER_LENGTH; i < bytes.length; i++) {
+            bytes[i] = (byte) (Math.random() * 256);
+        }
+        return this;
+    }
+
+    public CFLibDbKey24 generateRandom() {
+        if (bytes == null) {
+            throw new IllegalStateException("bytes not initialized. Call initBytes() first.");
+        }
+        for (int i = 0; i < bytes.length; i++) {
             bytes[i] = (byte) (Math.random() * 256);
         }
         return this;
