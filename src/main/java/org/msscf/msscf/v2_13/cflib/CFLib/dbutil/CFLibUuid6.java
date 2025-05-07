@@ -16,22 +16,45 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 /**
- *
+ * This variation on a UUID is based on supporting IPv6 as well as IPv4 host addresses for type 1 UUIDs.
+ * <p>
+ * The Uuid6 is a 28 byte value, represented as a 62 character string.  The string representation is
+ * formatted as follows:
+ * <p> The Uuid6 string representation is as described by this BNF:
+ * <blockquote><pre>
+ * {@code
+ * Uuid6                   = <time_stamp> "-"
+ *                          <version_and_variant> "-"
+ *                          <random> "-"
+ *                          <node0> "-" <node1> "-" <node2> "-" <node3>
+ * time_stamp             = 6*<hexOctet>
+ * version_and_variant    = 2*<hexOctet>
+ * random                 = 4*<hexOctet>
+ * node0                  = 4*<hexOctet>
+ * node1                  = 4*<hexOctet>
+ * node2                  = 4*<hexOctet>
+ * node3                  = 4*<hexOctet>
+ * hexOctet               = <hexDigit><hexDigit>
+ * hexDigit               =
+ *       "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+ *       | "a" | "b" | "c" | "d" | "e" | "f"
+ *       | "A" | "B" | "C" | "D" | "E" | "F"
+ * }</pre></blockquote>
  * @author msobkow
  */
 @Embeddable
 public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> {
-    public static final int IPV6_LENGTH = 16;
-    public static final int IPV4_LENGTH = 4;
-    public static final int IPV4_PAD = IPV6_LENGTH - IPV4_LENGTH;
+    public static final int IPV6_LENGTH = CFLibDbHostAddr.IPV6_LENGTH;
+    public static final int IPV4_LENGTH = CFLibDbHostAddr.IPV4_LENGTH;
+    public static final int IPV4_PAD = CFLibDbHostAddr.IPV4_PAD;
 
     public final static int STAMP_START = 0;
     public final static int STAMP_BYTES = 6;
     public final static int VERSION_AND_VARIANT_START = STAMP_BYTES;
     public final static int VERSION_AND_VARIANT_BYTES = 2;
-    public final static int SEQUENCE_START = VERSION_AND_VARIANT_START + VERSION_AND_VARIANT_BYTES;
-    public final static int SEQUENCE_BYTES = 4;
-    public final static int NODE0_START = SEQUENCE_START + SEQUENCE_BYTES;
+    public final static int RANDOM_START = VERSION_AND_VARIANT_START + VERSION_AND_VARIANT_BYTES;
+    public final static int RANDOM_BYTES = 4;
+    public final static int NODE0_START = RANDOM_START + RANDOM_BYTES;
     public final static int NODE0_BYTES = 4;
     public final static int NODE1_START = NODE0_START + NODE0_BYTES;
     public final static int NODE1_BYTES = 4;
@@ -42,13 +65,11 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
     /**
      * Uuid6 values are 28 bytes long, representable as strings for transport
      */
-    public final static int NUM_BYTES = NODE3_START + NODE3_BYTES;
+    public final static int TOTAL_BYTES = NODE3_START + NODE3_BYTES;
     /**
      * String format for Uuid6 values is 62 characters long
      */
-    public final static int STRING_LENGTH = (NUM_BYTES * 2) + 6;
-    
-    private static volatile int seqGen = 0;
+    public final static int STRING_LENGTH = (TOTAL_BYTES * 2) + 6;
 
     /*
      * The random number generator used by this class to create random
@@ -56,6 +77,7 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
      */
     private static class Holder {
         static final SecureRandom numberGenerator = new SecureRandom();
+        static final SecureRandom numberGenerator2 = new SecureRandom();
     }
     
     /**
@@ -66,121 +88,10 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
 
     @Convert(converter = CFLibUuid6Converter.class)
     @Column(name = "bytes", nullable = false)
-    private final byte[] bytes = new byte[NUM_BYTES];
+    private final byte[] bytes = new byte[TOTAL_BYTES];
 
     public byte[] getBytes() {
         return bytes;
-    }
-    
-    private static boolean addrHeaderInitialized = false;
-    private static byte[] addrHeader = new byte[IPV6_LENGTH];
-    static {
-        for (int i = 0; i < IPV4_LENGTH; i++) {
-            addrHeader[i] = 0;
-        }
-        for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
-            addrHeader[i] = -1;
-        }
-    }
-
-    public static boolean isAddrHeaderInitialized() {
-        if (addrHeaderInitialized) {
-            return true;
-        }
-    
-        // Check if addrHeader is already initialized
-        for (int i = 0; i < IPV4_LENGTH; i++) {
-            if (addrHeader[i] != 0) {
-                addrHeaderInitialized = true;
-                break;
-            }
-        }
-
-        if (!addrHeaderInitialized) {
-            for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
-                if (addrHeader[i] != -1) {
-                addrHeaderInitialized = true;
-                break;
-                }
-            }
-        }
-
-        return addrHeaderInitialized;
-    }
-
-    public static boolean hasIPv4AddrHeader() {
-        if (!isAddrHeaderInitialized()) {
-            return false;
-        }
-        boolean hasIPv4Part = false;
-        for (int i = 0; i < IPV4_LENGTH; i++) {
-            if (addrHeader[i] != 0) {
-                hasIPv4Part = true;
-                break;
-            }
-        }
-        for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
-            if (addrHeader[i] != -1) {
-                return false;
-            }
-        }
-        return hasIPv4Part;
-    }
-
-    public static boolean hasIPv6AddrHeader() {
-        if (!isAddrHeaderInitialized()) {
-            return false;
-        }
-        boolean hasIPv4Part = false;
-        for (int i = 0; i < IPV4_LENGTH; i++) {
-            if (addrHeader[i] != 0) {
-                hasIPv4Part = true;
-                break;
-            }
-        }
-        for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
-            if (addrHeader[i] != -1) {
-                return hasIPv4Part;
-            }
-        }
-        return false;
-    }
-    
-    public static void initAddrHeader() {
-        initAddrHeader(false);
-    }
-
-    public static void initAddrHeader(boolean reinit) {
-        if (isAddrHeaderInitialized() && !reinit) {
-            return;
-        }
-
-        // Try to initialize addrHeader with the server's IP address
-        try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            byte[] address = inetAddress.getAddress();
-
-            if (address.length == IPV6_LENGTH) {
-                System.arraycopy(address, 0, addrHeader, 0, IPV6_LENGTH);
-                addrHeaderInitialized = true;
-            } else if (address.length == IPV4_LENGTH) {
-                System.arraycopy(address, 0, addrHeader, 0, IPV4_LENGTH);
-                for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
-                    addrHeader[i] = -1;
-                }
-                addrHeaderInitialized = true;
-            }
-        } catch (UnknownHostException e) {
-            // Fallback to IPv4 127.0.0.1 (loopback) in worst case
-            addrHeader[0] = 127;
-            addrHeader[1] = 0;
-            addrHeader[2] = 0;
-            addrHeader[3] = 1;
-            for (int i = IPV4_LENGTH; i < IPV6_LENGTH; i++) {
-                addrHeader[i] = -1;
-            }
-            addrHeaderInitialized = true;
-        }
     }
 
     // Constructors and Factories
@@ -190,8 +101,8 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
      */
     public CFLibUuid6(byte[] data) {
         assert data != null;
-        assert data.length >= NUM_BYTES;
-        for (int i = 0; i < NUM_BYTES; i++) {
+        assert data.length >= TOTAL_BYTES;
+        for (int i = 0; i < TOTAL_BYTES; i++) {
             this.bytes[i] = data[i];
         }
     }
@@ -202,8 +113,8 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
      * @return  A newly initialized Uuid6
      */
     public static CFLibUuid6 generateUuid6() {
-        initAddrHeader();
-        byte[] genBytes = new byte[NUM_BYTES];
+        CFLibDbHostAddr.initAddrHeader();
+        byte[] genBytes = new byte[TOTAL_BYTES];
         long ts = System.currentTimeMillis() >> 4;
         genBytes[STAMP_START] = (byte)((ts >> (5*8))&0xff);
         genBytes[STAMP_START+1] = (byte)((ts >> (4*8))&0xff);
@@ -213,27 +124,31 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
         genBytes[STAMP_START+5] = (byte)((ts)&0xff);
         genBytes[VERSION_AND_VARIANT_START] = (byte)0x10;
         genBytes[VERSION_AND_VARIANT_START+1] = (byte)0x80;
-        int sq = seqGen++;
-        genBytes[SEQUENCE_START] = (byte)((sq>>(3*8))&0xff);
-        genBytes[SEQUENCE_START+1] = (byte)((sq>>(2*8))&0xff);
-        genBytes[SEQUENCE_START+2] = (byte)((sq>>8)&0xff);
-        genBytes[SEQUENCE_START+3] = (byte)(sq&0xff);
-        genBytes[NODE0_START] = addrHeader[0];
-        genBytes[NODE0_START+1] = addrHeader[1];
-        genBytes[NODE0_START+2] = addrHeader[2];
-        genBytes[NODE0_START+3] = addrHeader[3];
-        genBytes[NODE1_START] = addrHeader[4];
-        genBytes[NODE1_START+1] = addrHeader[5];
-        genBytes[NODE1_START+2] = addrHeader[6];
-        genBytes[NODE1_START+3] = addrHeader[7];
-        genBytes[NODE2_START] = addrHeader[8];
-        genBytes[NODE2_START+1] = addrHeader[9];
-        genBytes[NODE2_START+2] = addrHeader[10];
-        genBytes[NODE2_START+3] = addrHeader[11];
-        genBytes[NODE3_START] = addrHeader[12];
-        genBytes[NODE3_START+1] = addrHeader[13];
-        genBytes[NODE3_START+2] = addrHeader[14];
-        genBytes[NODE3_START+3] = addrHeader[15];
+        SecureRandom ng = Holder.numberGenerator;
+        byte[] randomBytes = new byte[RANDOM_BYTES];
+        ng.nextBytes(randomBytes);
+        genBytes[RANDOM_START] = randomBytes[0];
+        genBytes[RANDOM_START+1] = randomBytes[1];
+        genBytes[RANDOM_START+2] = randomBytes[2];
+        genBytes[RANDOM_START+3] = randomBytes[3];
+        CFLibDbHostAddr.copyAddrHeaderTo(genBytes, NODE0_START);
+        // byte[] addrHeader = CFLibDbHostAddr.getAddrHeader(false);
+        // genBytes[NODE0_START] = addrHeader[0];
+        // genBytes[NODE0_START+1] = addrHeader[1];
+        // genBytes[NODE0_START+2] = addrHeader[2];
+        // genBytes[NODE0_START+3] = addrHeader[3];
+        // genBytes[NODE1_START] = addrHeader[4];
+        // genBytes[NODE1_START+1] = addrHeader[5];
+        // genBytes[NODE1_START+2] = addrHeader[6];
+        // genBytes[NODE1_START+3] = addrHeader[7];
+        // genBytes[NODE2_START] = addrHeader[8];
+        // genBytes[NODE2_START+1] = addrHeader[9];
+        // genBytes[NODE2_START+2] = addrHeader[10];
+        // genBytes[NODE2_START+3] = addrHeader[11];
+        // genBytes[NODE3_START] = addrHeader[12];
+        // genBytes[NODE3_START+1] = addrHeader[13];
+        // genBytes[NODE3_START+2] = addrHeader[14];
+        // genBytes[NODE3_START+3] = addrHeader[15];
         return new CFLibUuid6(genBytes);
     }
 
@@ -246,9 +161,8 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
      * @return  A randomly generated {@code UUID}
      */
     public static CFLibUuid6 randomUuid6() {
-        SecureRandom ng = Holder.numberGenerator;
-
-        byte[] randomBytes = new byte[NUM_BYTES];
+        byte[] randomBytes = new byte[TOTAL_BYTES];
+        SecureRandom ng = Holder.numberGenerator2;
         ng.nextBytes(randomBytes);
         randomBytes[VERSION_AND_VARIANT_START] &= 0x0f;
         randomBytes[VERSION_AND_VARIANT_START] |= 0x40;
@@ -340,13 +254,13 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
      */
     public static CFLibUuid6 fromString(String name) {
         if (name.length() == STRING_LENGTH) {
-            char ch1 = name.charAt(11);
-            char ch2 = name.charAt(16);
-            char ch3 = name.charAt(25);
-            char ch4 = name.charAt(34);
-            char ch5 = name.charAt(43);
-            char ch6 = name.charAt(52);
-            byte[] v = new byte[NUM_BYTES];
+            char ch1 = name.charAt(12);
+            char ch2 = name.charAt(17);
+            char ch3 = name.charAt(26);
+            char ch4 = name.charAt(35);
+            char ch5 = name.charAt(44);
+            char ch6 = name.charAt(53);
+            byte[] v = new byte[TOTAL_BYTES];
             if (ch1 == '-' && ch2 == '-' && ch3 == '-' && ch4 == '-' && ch5 == '-' && ch6 == '-') {
                 // STAMP_BYTES
                 v[0] = parseHexByte(name,0);
@@ -358,38 +272,38 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
                 // VERSION_AND_VARIANT_BYTES
                 v[6] = parseHexByte(name,13);
                 v[7] = parseHexByte(name,15);
-                // SEQUENCE_BYTES
-                v[8] = parseHexByte(name,17);
-                v[9] = parseHexByte(name,19);
-                v[10] = parseHexByte(name,21);
-                v[11] = parseHexByte(name,23);
+                // RANDOM_BYTES
+                v[8] = parseHexByte(name,18);
+                v[9] = parseHexByte(name,20);
+                v[10] = parseHexByte(name,22);
+                v[11] = parseHexByte(name,24);
                 // NODE0_BYTES
-                v[12] = parseHexByte(name,26);
-                v[13] = parseHexByte(name,28);
-                v[14] = parseHexByte(name,30);
-                v[15] = parseHexByte(name,32);
+                v[12] = parseHexByte(name,27);
+                v[13] = parseHexByte(name,29);
+                v[14] = parseHexByte(name,31);
+                v[15] = parseHexByte(name,33);
                 // NODE1_BYTES
-                v[16] = parseHexByte(name,35);
-                v[17] = parseHexByte(name,37);
-                v[18] = parseHexByte(name,39);
-                v[19] = parseHexByte(name,41);
+                v[16] = parseHexByte(name,36);
+                v[17] = parseHexByte(name,38);
+                v[18] = parseHexByte(name,40);
+                v[19] = parseHexByte(name,42);
                 // NODE2_BYTES
-                v[20] = parseHexByte(name,44);
-                v[21] = parseHexByte(name,46);
-                v[22] = parseHexByte(name,48);
-                v[23] = parseHexByte(name,50);
+                v[20] = parseHexByte(name,45);
+                v[21] = parseHexByte(name,47);
+                v[22] = parseHexByte(name,49);
+                v[23] = parseHexByte(name,51);
                 // NODE3_BYTES
-                v[24] = parseHexByte(name,53);
-                v[25] = parseHexByte(name,55);
-                v[26] = parseHexByte(name,57);
-                v[27] = parseHexByte(name,59);
+                v[24] = parseHexByte(name,54);
+                v[25] = parseHexByte(name,56);
+                v[26] = parseHexByte(name,58);
+                v[27] = parseHexByte(name,60);
 
                 if (v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 0 || v[4] != 0
                     || v[5] != 0 || v[6] != 0 || v[7] != 0 || v[8] != 0 || v[9] != 0
                     || v[10] != 0 || v[11] != 0 || v[12] != 0 || v[13] != 0 || v[14] != 0
                     || v[15] != 0 || v[16] != 0 || v[17] != 0 || v[18] != 0 || v[19] != 0
                     || v[20] != 0 || v[21] != 0 || v[22] != 0 || v[23] != 0 || v[24] != 0
-                    || v[25] != 0)
+                    || v[25] != 0 || v[26] != 0 || v[27] != 0)
                 {
                     return new CFLibUuid6(v);
                 }
@@ -421,7 +335,7 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
 
         MessageDigest md;
         try {
-            // Try to get as close to 26 bytes as possible; SHA-224 is 224 bits, or 28 bytes, so we only lose two bytes of entropy
+            // Try to get as close to 28 bytes as possible; SHA-224 is 224 bits, or 28 bytes, so we lose no entropy from the hash
             md = MessageDigest.getInstance("SHA-224");
         } catch (NoSuchAlgorithmException nsae) {
             try {
@@ -461,7 +375,7 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
     public static CFLibUuid6 nameUuid6FromBytes(byte[] name) {
         MessageDigest md;
         try {
-            // Try to get as close to 26 bytes as possible; SHA-224 is 224 bits, or 28 bytes, so we only lose two bytes of entropy
+            // Try to get as close to 28 bytes as possible; SHA-224 is 224 bits, or 28 bytes, so we lose no entropy from the hash
             md = MessageDigest.getInstance("SHA-224");
         } catch (NoSuchAlgorithmException nsae) {
             try {
@@ -554,30 +468,30 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
     }
 
     /**
-     * The clock sequence value associated with this Uuid6.
+     * The clock random value associated with this Uuid6.
      *
-     * <p> The 32 bit clock sequence value is constructed from the clock
-     * sequence field of this Uuid6.  The clock sequence field is used to
+     * <p> The 32 bit clock random value is constructed from the clock
+     * randon field of this Uuid6.  The clock random field is used to
      * guarantee temporal uniqueness in a time-based Uuid6.
      *
-     * <p> The {@code clockSequence} value is only meaningful in a time-based
+     * <p> The {@code clockRandom} value is only meaningful in a time-based
      * Uuid6, which has version type 1.  If this Uuid6 is not a time-based Uuid6
      * then this method throws UnsupportedOperationException.
      *
-     * @return  The clock sequence of this {@code Uuid6}
+     * @return  The clock random of this {@code Uuid6}
      *
      * @throws  UnsupportedOperationException
      *          If this Uuid6 is not a version 1 Uuid6
      */
-    public int clockSequence() {
+    public int clockRandom() {
         if (version() != 1) {
             throw new UnsupportedOperationException("Not a time-based Uuid6");
         }
 
-        return (((int)bytes[SEQUENCE_START] << (3*8)) & 0xff000000)
-                | (((int)bytes[SEQUENCE_START+1] << (2*8)) & 0xff0000)
-                | (((int)bytes[SEQUENCE_START+2] << 8) & 0xff00)
-                | (((int)bytes[SEQUENCE_START+3]) & 0xff);
+        return (((int)bytes[RANDOM_START] << (3*8)) & 0xff000000)
+                | (((int)bytes[RANDOM_START+1] << (2*8)) & 0xff0000)
+                | (((int)bytes[RANDOM_START+2] << 8) & 0xff00)
+                | (((int)bytes[RANDOM_START+3]) & 0xff);
     }
 
     /**
@@ -637,11 +551,11 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
      * {@code
      * Uuid6                   = <time_stamp> "-"
      *                          <version_and_variant> "-"
-     *                          <sequence> "-"
+     *                          <random> "-"
      *                          <node0> "-" <node1> "-" <node2> "-" <node3>
      * time_stamp             = 6*<hexOctet>
      * version_and_variant    = 2*<hexOctet>
-     * sequence               = 4*<hexOctet>
+     * random                 = 4*<hexOctet>
      * node0                  = 4*<hexOctet>
      * node1                  = 4*<hexOctet>
      * node2                  = 4*<hexOctet>
@@ -659,7 +573,7 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
     public String toString() {
         return formatHexByte(bytes[STAMP_START]) + formatHexByte(bytes[STAMP_START+1]) + formatHexByte(bytes[STAMP_START+2]) + formatHexByte(bytes[STAMP_START+3]) + formatHexByte(bytes[STAMP_START+4]) + formatHexByte(bytes[STAMP_START+5])
                 + "-" + formatHexByte(bytes[VERSION_AND_VARIANT_START]) + formatHexByte(bytes[VERSION_AND_VARIANT_START+1])
-                + "-" + formatHexByte(bytes[SEQUENCE_START]) + formatHexByte(bytes[SEQUENCE_START+1]) + formatHexByte(bytes[SEQUENCE_START+2]) + formatHexByte(bytes[SEQUENCE_START+3])
+                + "-" + formatHexByte(bytes[RANDOM_START]) + formatHexByte(bytes[RANDOM_START+1]) + formatHexByte(bytes[RANDOM_START+2]) + formatHexByte(bytes[RANDOM_START+3])
                 + "-" + formatHexByte(bytes[NODE0_START]) + formatHexByte(bytes[NODE0_START+1]) + formatHexByte(bytes[NODE0_START+2]) + formatHexByte(bytes[NODE0_START+3])
                 + "-" + formatHexByte(bytes[NODE1_START]) + formatHexByte(bytes[NODE1_START+1]) + formatHexByte(bytes[NODE1_START+2]) + formatHexByte(bytes[NODE1_START+3])
                 + "-" + formatHexByte(bytes[NODE2_START]) + formatHexByte(bytes[NODE2_START+1]) + formatHexByte(bytes[NODE2_START+2]) + formatHexByte(bytes[NODE2_START+3])

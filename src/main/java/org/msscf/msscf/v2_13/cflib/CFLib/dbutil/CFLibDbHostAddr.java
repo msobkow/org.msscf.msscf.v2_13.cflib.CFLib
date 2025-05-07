@@ -27,6 +27,11 @@ public final class CFLibDbHostAddr {
         }
     }
 
+    /**
+     * Is the address header initialized?
+     * 
+     * @return
+     */
     public static boolean isAddrHeaderInitialized() {
         if (addrHeaderInitialized) {
             return true;
@@ -52,6 +57,11 @@ public final class CFLibDbHostAddr {
         return addrHeaderInitialized;
     }
 
+    /**
+     * Is the address header initialized with an IPV4 part but no IPV6 part?
+     * 
+     * @return
+     */
     public static boolean hasIPv4AddrHeader() {
         if (!isAddrHeaderInitialized()) {
             return false;
@@ -71,6 +81,11 @@ public final class CFLibDbHostAddr {
         return hasIPv4Part;
     }
 
+    /**
+     * Is the address header initialized with an IPV6 part but no IPV4 part?
+     * 
+     * @return
+     */
     public static boolean hasIPv6AddrHeader() {
         if (!isAddrHeaderInitialized()) {
             return false;
@@ -90,10 +105,22 @@ public final class CFLibDbHostAddr {
         return false;
     }
     
+    /**
+     * Initialize the address header with the server's IP address.
+     * If the server's IP address is not available, it will use the loopback address.
+     * Does not force reinitialization.
+     */
     public static void initAddrHeader() {
         initAddrHeader(false);
     }
 
+    /**
+     * Initialize the address header with the server's IP address.
+     * If the server's IP address is not available, it will use the loopback address.
+     * Allows you to force reinitialization even if already initialized; required after network connections are reset and rebound, such as in a restart of a service, or a migration to another server in the cluster.
+     *
+     * @param reinit
+     */
     public static void initAddrHeader(boolean reinit) {
         if (isAddrHeaderInitialized() && !reinit) {
             return;
@@ -142,6 +169,7 @@ public final class CFLibDbHostAddr {
 
     /**
      * Copy the address header into the destination buffer, initializing addrHeader if necessary.
+     * IPV6_LENGTH bytes will be copied.
      * 
      * @param dstBuff
      * @param dstOffset
