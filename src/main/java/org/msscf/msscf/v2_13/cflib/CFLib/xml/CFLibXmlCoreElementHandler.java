@@ -21,12 +21,11 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib;
+package org.msscf.msscf.v2_13.cflib.CFLib.xml;
 
 import java.util.*;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
+import org.msscf.msscf.v2_13.cflib.CFLib.ICFLibMessageLog;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

@@ -21,21 +21,11 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib;
+package org.msscf.msscf.v2_13.cflib.CFLib.xml;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.Paths;
 import java.util.*;
-
-import javax.xml.XMLConstants;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 
 import org.apache.xerces.parsers.XMLGrammarPreparser;
 import org.apache.xerces.util.XMLGrammarPoolImpl;
@@ -48,6 +38,8 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import org.msscf.msscf.v2_13.cflib.CFLib.ICFLibMessageLog;
 
 /**
  *	An OmxParser is an abstract Xerces-J DefaultHandler.

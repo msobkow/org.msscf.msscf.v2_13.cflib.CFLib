@@ -23,8 +23,6 @@
 
 package org.msscf.msscf.v2_13.cflib.CFLib;
 
-import java.util.*;
-
 /**
  *	The performance of exception handling in a high-volume Java system cannot
  *	be underestimated.  Anything you can do to speed up exception

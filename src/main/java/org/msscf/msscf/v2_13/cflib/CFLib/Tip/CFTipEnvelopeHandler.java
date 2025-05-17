@@ -1,7 +1,7 @@
 /*
  *	MSS Code Factory CFLib 2.13
  *
- *	Copyright (c) 2020 Mark Stephen Sobkow
+ *	Copyright (c) 2020-2025 Mark Stephen Sobkow
  *
  *	This file is part of MSS Code Factory.
  *
@@ -18,9 +18,6 @@
  *	You should have received a copy of the GNU Lesser General Public License
  *	along with MSS Code Factory.  If not, see https://www.gnu.org/licenses/.
  *
- *	Donations to support MSS Code Factory can be made at
- *	https://www.paypal.com/paypalme2/MarkSobkow
- *
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
@@ -30,17 +27,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
@@ -52,15 +43,17 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.msscf.msscf.v2_13.cflib.CFLib.*;
-
 import org.xml.sax.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xerces.xni.grammars.Grammar;
 
+import org.msscf.msscf.v2_13.cflib.CFLib.*;
+import org.msscf.msscf.v2_13.cflib.CFLib.xml.CFLibXmlUtil;
+import org.msscf.msscf.v2_13.cflib.CFLib.xml.CFLibXmlCoreElementHandler;
+import org.msscf.msscf.v2_13.cflib.CFLib.xml.CFLibXmlCoreSaxParser;
+
 public class CFTipEnvelopeHandler
 	extends CFLibXmlCoreSaxParser
-	implements ContentHandler
 {
 	// The namespace URI of the supported schema
 	public final static String	SCHEMA_XMLNS = "http://msscf.org:8088/msscf/2.0.13/cftipenvelope";

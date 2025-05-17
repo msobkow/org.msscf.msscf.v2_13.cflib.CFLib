@@ -21,7 +21,7 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib;
+package org.msscf.msscf.v2_13.cflib.CFLib.xml;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -31,15 +31,12 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.SAXNotSupportedException;
-
-import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
-import org.apache.xerces.parsers.XMLGrammarPreparser;
-import org.apache.xerces.xni.parser.XMLParserConfiguration;
+import org.msscf.msscf.v2_13.cflib.CFLib.ICFLibMessageLog;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
+
+import org.msscf.msscf.v2_13.cflib.CFLib.CFLibNullArgumentException;
 
 /**
  *	An XmlCoreSaxParser is an abstract Xerces-J DefaultHandler

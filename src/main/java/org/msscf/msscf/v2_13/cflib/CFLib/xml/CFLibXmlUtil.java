@@ -21,13 +21,15 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib;
+package org.msscf.msscf.v2_13.cflib.CFLib.xml;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 
 import org.apache.commons.codec.binary.Base64;
+
+import org.msscf.msscf.v2_13.cflib.CFLib.*;
 
 public class CFLibXmlUtil {
 

@@ -23,8 +23,6 @@
 
 package org.msscf.msscf.v2_13.cflib.CFLib;
 
-import java.util.*;
-
 public class CFLibNullArgumentException extends CFLibArgumentException {
 
 	public CFLibNullArgumentException(

@@ -23,8 +23,6 @@
 
 package org.msscf.msscf.v2_13.cflib.CFLib;
 
-import java.util.*;
-
 public class CFLibDependentsDetectedException extends CFLibRuntimeException {
 
 	protected String relnType = null;

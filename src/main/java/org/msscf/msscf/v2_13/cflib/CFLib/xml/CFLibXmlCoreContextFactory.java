@@ -21,7 +21,9 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib;
+package org.msscf.msscf.v2_13.cflib.CFLib.xml;
+
+import org.msscf.msscf.v2_13.cflib.CFLib.ICFLibMessageLog;
 
 /**
  *	An XML Core Context Factory instantiates new instances

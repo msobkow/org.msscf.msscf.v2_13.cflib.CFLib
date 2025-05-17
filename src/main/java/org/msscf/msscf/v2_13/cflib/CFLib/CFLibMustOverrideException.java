@@ -23,8 +23,6 @@
 
 package org.msscf.msscf.v2_13.cflib.CFLib;
 
-import java.util.*;
-
 public class CFLibMustOverrideException extends IllegalStateException {
 
 	public CFLibMustOverrideException(

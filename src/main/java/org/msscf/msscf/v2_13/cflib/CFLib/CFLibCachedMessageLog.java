@@ -24,7 +24,6 @@
 package org.msscf.msscf.v2_13.cflib.CFLib;
 
 import java.io.*;
-import java.util.*;
 
 public class CFLibCachedMessageLog
 implements ICFLibMessageLog {
