@@ -1,7 +1,6 @@
 package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +31,7 @@ public class CFLibDbKeyHash512 extends CFLibDbKeyHashBase<CFLibDbKeyHash512> imp
   }
 
   @Override
-  public int getHashStringLength() {
+  public int getHashLengthString() {
     return HASH_LENGTH_STRING;
   }
 
@@ -196,21 +195,26 @@ public class CFLibDbKeyHash512 extends CFLibDbKeyHashBase<CFLibDbKeyHash512> imp
   }
 
   static public int compareOrdered(CFLibDbKeyHash512 h1, CFLibDbKeyHash512 h2) {
-    if (h1 == null && h2 != null) {
-      return -1;
+    if (h1 == null) {
+      if (h2 == null) {
+        return 0;
+      }
+      else {
+        return -1;
+      }
     }
-    if (h1 != null && h2 == null) {
-      return 1;
-    }
-    if (h1 == null && h2 == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < HASH_LENGTH; i++) {
-      int v1 = h1.bytes[i] + 256;
-      int v2 = h2.bytes[i] + 256;
-      if (v1 < v2) return -1;
-      if (v1 > v2) return 1;
+    else {
+      if (h2 == null) {
+        return 1;
+      }
+      else {
+        for (int i = 0; i < HASH_LENGTH; i++) {
+          int v1 = h1.bytes[i] + 256;
+          int v2 = h2.bytes[i] + 256;
+          if (v1 < v2) return -1;
+          if (v1 > v2) return 1;
+        }
+      }
     }
     return 0;
   }

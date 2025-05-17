@@ -50,7 +50,7 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
       hashBuffer = new ByteBuffer[CONCURRENT_DIGESTS];
       CFLibDbHostAddr.initAddrHeader();
       long pid = ProcessHandle.current().pid();
-      long tid = Thread.currentThread().getId();
+      long tid = Thread.currentThread().threadId();
       for (int i = 0; i < CONCURRENT_DIGESTS; i++) {
         CFLibUuid6 u = CFLibUuid6.generateUuid6();
         hashBuffer[i] = ByteBuffer.allocate(TOTAL_BYTES);
@@ -127,11 +127,11 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
   public CFLibDbKeyHashBase(int notUsed) {
     initStatics();
     int thid = (int) (Math.abs(rotator++) % CONCURRENT_DIGESTS);
-    synchronized (getM()[thid]) {
+    synchronized (hashBuffer[thid]) {
       while (true) {
         counter++;
         hashBuffer[thid].putLong(COUNTER_INDEX, counter);
-        hashBuffer[thid].putLong(THREAD_INDEX, Thread.currentThread().getId());
+        hashBuffer[thid].putLong(THREAD_INDEX, Thread.currentThread().threadId());
         hashBuffer[thid].putLong(RANDBYTES_INDEX, (long) (Math.random() * Long.MAX_VALUE));
         getM()[thid].update(hashBuffer[thid].array(), 0, TOTAL_BYTES);
 
@@ -223,29 +223,35 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
 
   @Override
   public int compare(T h1, T h2) {
-    if (h1 == null && h2 != null) {
-      return 1;
-    }
-    if (h2 == null && h1 != null) {
-      return -1;
-    }
-    if (h2 == null && h1 == null) {
-      return 0;
-    }
-    byte[] b1 = h1.getBytes();
-    byte[] b2 = h2.getBytes();
-    for (int i = 0; i < h1.getHashLength(); i++) {
-      int v1 = b1[i];
-      int v2 = b2[i];
-      if (v1 < 0) {
-        v1 += 256;
+    if (h1 == null) {
+      if (h2 == null) {
+        return 0;
       }
-      if (v2 < 0) {
-        v2 += 256;
+      else {
+        return 1;
       }
-      int c = v1 - v2;
-      if (c != 0) {
-        return c;
+    }
+    else {
+      if (h2 == null) {
+        return -1;
+      }
+      else {
+        byte[] b1 = h1.getBytes();
+        byte[] b2 = h2.getBytes();
+        for (int i = 0; i < h1.getHashLength(); i++) {
+          int v1 = b1[i];
+          int v2 = b2[i];
+          if (v1 < 0) {
+            v1 += 256;
+          }
+          if (v2 < 0) {
+            v2 += 256;
+          }
+          int c = v1 - v2;
+          if (c != 0) {
+            return c;
+          }
+        }
       }
     }
     return 0;

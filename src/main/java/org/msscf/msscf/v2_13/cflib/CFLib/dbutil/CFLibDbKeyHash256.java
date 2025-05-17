@@ -1,10 +1,8 @@
 package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -20,51 +18,43 @@ import jakarta.persistence.Embeddable;
  * @author msobkow
  */
 @Embeddable
-public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHash256>, Comparable<CFLibDbKeyHash256> {
+public class CFLibDbKeyHash256 extends CFLibDbKeyHashBase<CFLibDbKeyHash256> implements Serializable {
 
-  static final long serialVersionUID = 202505062L;
-  static final String hexDigits = "0123456789abcdef";
-  static final int UUID6_INDEX = 0;
-  static final int UUID6_LENGTH = CFLibUuid6.TOTAL_BYTES;
-  static final int COUNTER_INDEX = 28;
-  static final int COUNTER_LENGTH = 8;
-  static final int MACHINE_INDEX = 36;
-  static final int MACHINE_LENGTH = 4;
-  static final int PID_INDEX = 40;
-  static final int PID_LENGTH = 8;
-  static final int THREAD_INDEX = 48;
-  static final int THREAD_LENGTH = 8;
-  static final int RANDBYTES_INDEX = 56;
-  static final int RANDBYTES_LENGTH = 8;
-  static final int TOTAL_BYTES = 64;
+  static final long serialVersionUID = 202505162230L;
   static final public  int HASH_LENGTH = 32; // hash size in bytes
   static final public int HASH_LENGTH_STRING = HASH_LENGTH * 2; // SHA-1 hash size as a string
   static final String HASH_ALGO = "SHA-256";
-  
-  @Convert(converter = CFLibDbKeyHash256Converter.class)
-  @Column(name = "bytes", nullable = false)
-  protected byte[] bytes;
 
-  static final int CONCURRENT_DIGESTS = Runtime.getRuntime().availableProcessors() * 2;
-  static final ByteBuffer[] hashBuffer = new ByteBuffer[CONCURRENT_DIGESTS];
-  static volatile int rotator = 0;
-  static volatile long counter = 1;
-  static final MessageDigest[] m = new MessageDigest[CONCURRENT_DIGESTS];
+  @Override
+  public int getHashLength() {
+    return HASH_LENGTH;
+  }
 
-  static {
+  @Override
+  public int getHashLengthString() {
+    return HASH_LENGTH_STRING;
+  }
+
+  @Override
+  public String getHashAlgo() {
+    return HASH_ALGO;
+  }
+
+  static MessageDigest[] m = null;
+  @Override
+  protected MessageDigest[] getM() {
+    return m;
+  }
+
+  @Override
+  public void initStatics() {
+    if (m != null) {
+      return;
+    }
+    super.initStatics();
     try {
-      CFLibDbHostAddr.initAddrHeader();
-      long pid = ProcessHandle.current().pid();
-      long tid = Thread.currentThread().getId();
+      m = new MessageDigest[CONCURRENT_DIGESTS];
       for (int i = 0; i < CONCURRENT_DIGESTS; i++) {
-        CFLibUuid6 u = CFLibUuid6.generateUuid6();
-        hashBuffer[i] = ByteBuffer.allocate(TOTAL_BYTES);
-        System.arraycopy(u.getBytes(), 0, hashBuffer, 0, CFLibUuid6.TOTAL_BYTES);
-        hashBuffer[i].putLong(COUNTER_INDEX, counter);
-        hashBuffer[i].putInt(MACHINE_INDEX, 1);
-        hashBuffer[i].putLong(PID_INDEX, pid);
-        hashBuffer[i].putLong(THREAD_INDEX, tid);
-        hashBuffer[i].putLong(RANDBYTES_INDEX, 1);
         m[i] = MessageDigest.getInstance(HASH_ALGO);
       }
     }
@@ -72,8 +62,12 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
       e.printStackTrace();
     }
   }
+  
+  @Convert(converter = CFLibDbKeyHash256Converter.class)
+  @Column(name = "bytes", nullable = false)
+  protected byte[] bytes;
 
-  public static byte[] bytesFromHex(String string) {
+  public static byte[] sbytesFromHex(String string) {
     if (string == null) {
       // allowed
     }
@@ -93,7 +87,7 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   public static CFLibDbKeyHash256 fromHex(String string) {
-    byte[] b = bytesFromHex(string);
+    byte[] b = sbytesFromHex(string);
     CFLibDbKeyHash256 h = new CFLibDbKeyHash256();
     h.bytes = b;
     return h;
@@ -110,39 +104,26 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   public CFLibDbKeyHash256() {
+    super();
   }
 
   /**
    * This is the hex code of the underlying ID. THIS IS NOT A HASHING FUNCTION.
    */
   public CFLibDbKeyHash256(String hexId) {
-    bytes = bytesFromHex(hexId);
+    super(hexId);
   }
 
   public CFLibDbKeyHash256(byte[] anId) {
-    if (anId == null) {
-      // allowed
-    }
-    else if (anId.length > HASH_LENGTH) {
-      throw new IllegalArgumentException("anId length must be <= " + HASH_LENGTH + ".");
-    }
-    bytes = new byte[HASH_LENGTH];
-    if (anId != null) {
-      System.arraycopy(anId, 0, bytes, 0, Math.min(anId.length, HASH_LENGTH));
-    }
+    super(anId);
   }
 
   public CFLibDbKeyHash256(CFLibDbKeyHash256 otherKey) {
-    if (otherKey == null) {
-      bytes = new byte[HASH_LENGTH];
-      return;
-    }
-    byte[] _newId = new byte[HASH_LENGTH];
-    System.arraycopy(otherKey.getBytes(), 0, _newId, 0, HASH_LENGTH);
-    this.bytes = _newId;
+    super(otherKey);
   }
 
   public CFLibDbKeyHash256(CFLibDbKeyHash384 otherKey) {
+    super();
     if (otherKey == null) {
       bytes = new byte[HASH_LENGTH];
       return;
@@ -153,6 +134,7 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   public CFLibDbKeyHash256(CFLibDbKeyHash512 otherKey) {
+    super();
     if (otherKey == null) {
       bytes = new byte[HASH_LENGTH];
       return;
@@ -172,85 +154,11 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   public CFLibDbKeyHash256(int notUsed) {
-    int thid = (int) (Math.abs(rotator++) % CONCURRENT_DIGESTS);
-    synchronized (m[thid]) {
-      while (true) {
-        counter++;
-        hashBuffer[thid].putLong(COUNTER_INDEX, counter);
-        hashBuffer[thid].putLong(THREAD_INDEX, Thread.currentThread().getId());
-        hashBuffer[thid].putLong(RANDBYTES_INDEX, (long) (Math.random() * Long.MAX_VALUE));
-        m[thid].update(hashBuffer[thid].array(), 0, TOTAL_BYTES);
-
-        bytes = m[thid].digest();
-
-        // we want to reserve the bottom 32 bits of the counter for incremental temporary indexing so we regenerate entries that have the top 12 bytes as 0's */
-        for (int i = 4; i < HASH_LENGTH; i++) {
-          if (bytes[i] != 0) {
-            return;
-          }
-        }
-      }
-    }
-  }
-
-  public int hashCode() {
-    int result = 0;
-    for (int i = 3; i >= 0; i--) {
-      //result = (result << 8) | id16[i];
-      result = (result << 8) | (0xFF & ((int) bytes[i]));
-    }
-    return result;
-  }
-
-  public boolean equals(Object aTest) {
-    if (aTest == null) {
-      return false;
-    }
-    if (aTest == this) {
-      return true;
-    }
-    if (aTest.getClass() != getClass()) {
-      return false;
-    }
-    CFLibDbKeyHash256 test = (CFLibDbKeyHash256) aTest;
-    return Arrays.equals(bytes, test.bytes);
-  }
-
-  public int reduceToInt() {
-    return hashCode();
-  }
-
-  public boolean isNull() {
-    if (bytes != null) {
-      for (int i = 0; i < HASH_LENGTH; i++) {
-        if (bytes[i] != 0) {
-          return false;
-        }
-      }
-    }
-    return true;
+    super(notUsed);
   }
 
   public static final boolean isNull(CFLibDbKeyHash256 anId) {
     return anId == null || anId.isNull();
-  }
-
-  static public void setMachineId(int id) {
-    for (int i = 0; i < CONCURRENT_DIGESTS; i++) {
-      hashBuffer[i].putInt(MACHINE_INDEX, id);
-    }
-  }
-
-  public String asString() {
-    if (bytes == null) {
-      return "null";
-    }
-    StringBuilder sb = new StringBuilder(bytes.length * 2);
-    for (int i = 0; i < HASH_LENGTH; i++) {
-      sb.append(hexDigits.charAt((bytes[i] & 0xF0) >>> 4));
-      sb.append(hexDigits.charAt(bytes[i] & 0x0F));
-    }
-    return sb.toString();
   }
 
   public static final String getJava(CFLibDbKeyHash256 id) {
@@ -262,19 +170,12 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
     }
   }
 
-  public void asString(StringBuilder sb) {
-    // Construct and return the representive hex string
-    for (int i = 0; i < HASH_LENGTH; i++) {
-      sb.append(hexDigits.charAt((bytes[i] & 0xF0) >>> 4));
-      sb.append(hexDigits.charAt(bytes[i] & 0x0F));
-    }
-  }
-
   @Override
   public String toString() {
     return asString();
   }
 
+  @Override
   public byte[] getBytes() {
     return bytes;
   }
@@ -298,6 +199,7 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
    *
    * @param newBytes to be copied from.
    */
+  @Override
   public void setBytes(byte[] newBytes) {
     if (newBytes == null) {
       throw new NullPointerException("newBytes must not be null.");
@@ -309,60 +211,32 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
   }
 
   /** Copy into existing key */
+  @Override
   public void setBytes(byte[] newBytes, int offset,  int length) {
-      System.arraycopy(newBytes, offset, bytes, 0, Math.min(TOTAL_BYTES,length));
-  }
-
-  @Override
-  public int compare(CFLibDbKeyHash256 h1, CFLibDbKeyHash256 h2) {
-    if (h1 == null && h2 != null) {
-      return 1;
-    }
-    if (h2 == null && h1 != null) {
-      return -1;
-    }
-    if (h2 == null && h1 == null) {
-      return 0;
-    }
-    for (int i = 0; i < HASH_LENGTH; i++) {
-      int v1 = h1.bytes[i];
-      int v2 = h2.bytes[i];
-      if (v1 < 0) {
-        v1 += 256;
-      }
-      if (v2 < 0) {
-        v2 += 256;
-      }
-      int c = v1 - v2;
-      if (c != 0) {
-        return c;
-      }
-    }
-    return 0;
-  }
-
-  @Override
-  public int compareTo(CFLibDbKeyHash256 o) {
-    int result = compare(this, o);
-    return result;
+      System.arraycopy(newBytes, offset, bytes, 0, Math.min(HASH_LENGTH,length));
   }
 
   static public int compareOrdered(CFLibDbKeyHash256 h1, CFLibDbKeyHash256 h2) {
-    if (h1 == null && h2 != null) {
-      return -1;
+    if (h1 == null) {
+      if (h2 == null) {
+        return 0;
+      }
+      else {
+        return -1;
+      }
     }
-    if (h1 != null && h2 == null) {
-      return 1;
-    }
-    if (h1 == null && h2 == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < HASH_LENGTH; i++) {
-      int v1 = h1.bytes[i] + 256;
-      int v2 = h2.bytes[i] + 256;
-      if (v1 < v2) return -1;
-      if (v1 > v2) return 1;
+    else {
+      if (h2 == null) {
+        return 1;
+      }
+      else {
+        for (int i = 0; i < HASH_LENGTH; i++) {
+          int v1 = h1.bytes[i] + 256;
+          int v2 = h2.bytes[i] + 256;
+          if (v1 < v2) return -1;
+          if (v1 > v2) return 1;
+        }
+      }
     }
     return 0;
   }
@@ -438,20 +312,9 @@ public class CFLibDbKeyHash256 implements Serializable, Comparator<CFLibDbKeyHas
     return new CFLibDbKeyHash256(0);
   }
 
-  public byte[] fingerprint() {
-    return bytes;
-  }
-
+  @Override
   public CFLibDbKeyHash256 deepClone() {
     return new CFLibDbKeyHash256(this);
-  }
-
-  static public int getHashLength() {
-    return HASH_LENGTH;
-  }
-
-  static public int getHashStringLength() {
-    return HASH_LENGTH_STRING;
   }
 
   static public CFLibDbKeyHash256 fromHexQuick(String string) {

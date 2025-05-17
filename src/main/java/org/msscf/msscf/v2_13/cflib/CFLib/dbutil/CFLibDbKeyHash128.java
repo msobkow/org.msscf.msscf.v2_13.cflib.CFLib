@@ -228,21 +228,26 @@ public class CFLibDbKeyHash128 extends CFLibDbKeyHashBase<CFLibDbKeyHash128> imp
   }
 
   static public int compareOrdered(CFLibDbKeyHash128 h1, CFLibDbKeyHash128 h2) {
-    if (h1 == null && h2 != null) {
-      return -1;
+    if (h1 == null) {
+      if (h2 == null) {
+        return 0;
+      }
+      else {
+        return -1;
+      }
     }
-    if (h1 != null && h2 == null) {
-      return 1;
-    }
-    if (h1 == null && h2 == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < HASH_LENGTH; i++) {
-      int v1 = h1.bytes[i] + 256;
-      int v2 = h2.bytes[i] + 256;
-      if (v1 < v2) return -1;
-      if (v1 > v2) return 1;
+    else {
+      if (h2 == null) {
+        return 1;
+      }
+      else {
+        for (int i = 0; i < HASH_LENGTH; i++) {
+          int v1 = h1.bytes[i] + 256;
+          int v2 = h2.bytes[i] + 256;
+          if (v1 < v2) return -1;
+          if (v1 > v2) return 1;
+        }
+      }
     }
     return 0;
   }
