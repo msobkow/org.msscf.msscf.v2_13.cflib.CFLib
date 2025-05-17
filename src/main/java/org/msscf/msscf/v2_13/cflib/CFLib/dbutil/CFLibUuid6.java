@@ -1,7 +1,26 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ *	MSS Code Factory CFLib 2.13
+ *
+ *	Copyright (c) 2025 Mark Stephen Sobkow
+ *
+ *	This file is part of MSS Code Factory.
+ *
+ *	MSS Code Factory is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU Lesser General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	MSS Code Factory is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public License
+ *	along with MSS Code Factory.  If not, see https://www.gnu.org/licenses/.
+ *
+ *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
+
 package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
 
 import jakarta.persistence.Column;
@@ -18,7 +37,6 @@ import java.util.Arrays;
  * <p>
  * The Uuid6 is a 28 byte value, represented as a 62 character string.  The string representation is
  * formatted as follows:
- * <p> The Uuid6 string representation is as described by this BNF:
  * <blockquote><pre>
  * {@code
  * Uuid6                   = <time_stamp> "-"
@@ -38,6 +56,7 @@ import java.util.Arrays;
  *       | "a" | "b" | "c" | "d" | "e" | "f"
  *       | "A" | "B" | "C" | "D" | "E" | "F"
  * }</pre></blockquote>
+ * 
  * @author msobkow
  */
 @Embeddable

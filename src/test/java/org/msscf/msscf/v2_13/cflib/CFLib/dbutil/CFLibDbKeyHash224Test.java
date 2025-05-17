@@ -30,45 +30,45 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class CFLibDbKeyHash128Test {
+public class CFLibDbKeyHash224Test {
 
     @Test
     void testGetHashAlgo() {
-		assertEquals("MD5", CFLibDbKeyHash128.HASH_ALGO);
-		CFLibDbKeyHash128 k = new CFLibDbKeyHash128();
-		assertEquals("MD5", k.getHashAlgo());
+		assertEquals("SHA-224", CFLibDbKeyHash224.HASH_ALGO);
+		CFLibDbKeyHash224 k = new CFLibDbKeyHash224();
+		assertEquals("SHA-224", k.getHashAlgo());
     }
 
     @Test
     void testGetHashLength() {
-		assertEquals(16, CFLibDbKeyHash128.HASH_LENGTH);
-		CFLibDbKeyHash128 k = new CFLibDbKeyHash128();
-		assertEquals(16, k.getHashLength());
+		assertEquals(28, CFLibDbKeyHash224.HASH_LENGTH);
+		CFLibDbKeyHash224 k = new CFLibDbKeyHash224();
+		assertEquals(28, k.getHashLength());
     }
 
     @Test
     void testGetHashLengthString() {
-		assertEquals(32, CFLibDbKeyHash128.HASH_LENGTH_STRING);
-		CFLibDbKeyHash128 k = new CFLibDbKeyHash128();
-		assertEquals(32, k.getHashLengthString());
+		assertEquals(56, CFLibDbKeyHash224.HASH_LENGTH_STRING);
+		CFLibDbKeyHash224 k = new CFLibDbKeyHash224();
+		assertEquals(56, k.getHashLengthString());
     }
 
     @Test
     void testGetBytes() {
-		CFLibDbKeyHash128 k = new CFLibDbKeyHash128();
+		CFLibDbKeyHash224 k = new CFLibDbKeyHash224();
 		byte[] bytes = k.getBytes();
 		assertNull(bytes);
-		CFLibDbKeyHash128 k2 = CFLibDbKeyHash128.nullGet();
+		CFLibDbKeyHash224 k2 = CFLibDbKeyHash224.nullGet();
 		byte[] bytes2 = k2.getBytes();
 		assertNotNull(bytes2);
     }
 
     @Test
     void testNullGet() {
-		CFLibDbKeyHash128 n = CFLibDbKeyHash128.nullGet();
+		CFLibDbKeyHash224 n = CFLibDbKeyHash224.nullGet();
 		byte[] bytes = n.getBytes();
 		assertNotNull(bytes);
-		assertEquals(16, bytes.length);
+		assertEquals(28, bytes.length);
 		for (int i = 0; i < bytes.length; i++) {
 			assertEquals(0, bytes[i]);
 		}
@@ -77,23 +77,23 @@ public class CFLibDbKeyHash128Test {
 	@Test
     void testCompareOrdered() {
 
-		CFLibDbKeyHash128 nullA = CFLibDbKeyHash128.nullGet();
-		CFLibDbKeyHash128 nullB = CFLibDbKeyHash128.nullGet();
-		assertEquals(0, CFLibDbKeyHash128.compareOrdered(nullA, nullB));
+		CFLibDbKeyHash224 nullA = CFLibDbKeyHash224.nullGet();
+		CFLibDbKeyHash224 nullB = CFLibDbKeyHash224.nullGet();
+		assertEquals(0, CFLibDbKeyHash224.compareOrdered(nullA, nullB));
 
-		byte[] bA = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-		byte[] bB = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-		CFLibDbKeyHash128 valA = new CFLibDbKeyHash128(bA);
-		assertEquals(0, CFLibDbKeyHash128.compareOrdered(valA, valA));
-		CFLibDbKeyHash128 anotherA = new CFLibDbKeyHash128(bA);
-		assertEquals(0, CFLibDbKeyHash128.compareOrdered(valA, anotherA));
+		byte[] bA = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
+		byte[] bB = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+		CFLibDbKeyHash224 valA = new CFLibDbKeyHash224(bA);
+		assertEquals(0, CFLibDbKeyHash224.compareOrdered(valA, valA));
+		CFLibDbKeyHash224 anotherA = new CFLibDbKeyHash224(bA);
+		assertEquals(0, CFLibDbKeyHash224.compareOrdered(valA, anotherA));
 
-		CFLibDbKeyHash128 valB = new CFLibDbKeyHash128(bB);
-		assertTrue(CFLibDbKeyHash128.compareOrdered(valA, valB) < 0);
-		assertTrue(CFLibDbKeyHash128.compareOrdered(valB, valA) > 0);
+		CFLibDbKeyHash224 valB = new CFLibDbKeyHash224(bB);
+		assertTrue(CFLibDbKeyHash224.compareOrdered(valA, valB) < 0);
+		assertTrue(CFLibDbKeyHash224.compareOrdered(valB, valA) > 0);
 
-		CFLibDbKeyHash128 notNull = new CFLibDbKeyHash128(0);
-		assertTrue(CFLibDbKeyHash128.compareOrdered(nullA, notNull) != 0);
-		assertTrue(CFLibDbKeyHash128.compareOrdered(notNull, nullA) != 0);
+		CFLibDbKeyHash224 notNull = new CFLibDbKeyHash224(0);
+		assertTrue(CFLibDbKeyHash224.compareOrdered(nullA, notNull) != 0);
+		assertTrue(CFLibDbKeyHash224.compareOrdered(notNull, nullA) != 0);
     }
 }
