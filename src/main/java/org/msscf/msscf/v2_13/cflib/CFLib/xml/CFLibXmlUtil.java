@@ -28,8 +28,11 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import org.apache.commons.codec.binary.Base64;
-
-import org.msscf.msscf.v2_13.cflib.CFLib.*;
+import org.msscf.msscf.v2_13.cflib.CFLib.CFLibArgumentOverflowException;
+import org.msscf.msscf.v2_13.cflib.CFLib.CFLibArgumentRangeException;
+import org.msscf.msscf.v2_13.cflib.CFLib.CFLibArgumentUnderflowException;
+import org.msscf.msscf.v2_13.cflib.CFLib.CFLibInvalidArgumentException;
+import org.msscf.msscf.v2_13.cflib.CFLib.CFLibNullArgumentException;
 
 public class CFLibXmlUtil {
 
