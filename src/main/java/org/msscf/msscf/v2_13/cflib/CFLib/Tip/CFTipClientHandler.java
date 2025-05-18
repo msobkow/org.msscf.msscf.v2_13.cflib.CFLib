@@ -46,7 +46,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.msscf.msscf.v2_13.cflib.CFLib.*;
 import org.msscf.msscf.v2_13.cflib.CFLib.xml.*;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.xerces.xni.grammars.Grammar;
+// import org.apache.xerces.xni.grammars.Grammar;
 import org.xml.sax.*;
 
 public class CFTipClientHandler
@@ -60,61 +60,61 @@ public class CFTipClientHandler
 	public final static String	SCHEMA_URI = "http://msscf.org:8088/msscf/2.0.13/xsd/cftip-2.13-serverinfo.xsd";
 	public final static String	SCHEMA_ROOT_URI = "/xsd/cftip-2.13-serverinfo.xsd";
 
-	protected static Grammar myGrammar = null;
+	// protected static Grammar myGrammar = null;
 	
 	// Constructors
 
 	public CFTipClientHandler() {
 		super();
 		setRootElementHandler( getSaxRqstRootHandler() );
-		if( myGrammar == null ) {
-			InputStream input;
-			File file = new File( SCHEMA_URI );
-			if( file.exists() ) {
-				try {
-					input = new FileInputStream( file );
-				}
-				catch( Exception e ) {
-					input = null;
-				}
-				if( input != null ) {
-					myGrammar = addToGrammarPool( SCHEMA_URI, input );
-				}
-			}
-			else {
-				input = getClass().getResourceAsStream( SCHEMA_ROOT_URI );
-				if( input != null ) {
-					myGrammar = addToGrammarPool( SCHEMA_ROOT_URI, input );
-				}
-			}
-		}
+		// if( myGrammar == null ) {
+		// 	InputStream input;
+		// 	File file = new File( SCHEMA_URI );
+		// 	if( file.exists() ) {
+		// 		try {
+		// 			input = new FileInputStream( file );
+		// 		}
+		// 		catch( Exception e ) {
+		// 			input = null;
+		// 		}
+		// 		if( input != null ) {
+		// 			myGrammar = addToGrammarPool( SCHEMA_URI, input );
+		// 		}
+		// 	}
+		// 	else {
+		// 		input = getClass().getResourceAsStream( SCHEMA_ROOT_URI );
+		// 		if( input != null ) {
+		// 			myGrammar = addToGrammarPool( SCHEMA_ROOT_URI, input );
+		// 		}
+		// 	}
+		// }
 		initParser();
 	}
 
 	public CFTipClientHandler( ICFLibMessageLog logger ) {
 		super( logger );
 		setRootElementHandler( getSaxRqstRootHandler() );
-		if( myGrammar == null ) {
-			InputStream input;
-			File file = new File( SCHEMA_URI );
-			if( file.exists() ) {
-				try {
-					input = new FileInputStream( file );
-				}
-				catch( Exception e ) {
-					input = null;
-				}
-				if( input != null ) {
-					myGrammar = addToGrammarPool( SCHEMA_URI, input );
-				}
-			}
-			else {
-				input = getClass().getResourceAsStream( SCHEMA_ROOT_URI );
-				if( input != null ) {
-					myGrammar = addToGrammarPool( SCHEMA_ROOT_URI, input );
-				}
-			}
-		}
+		// if( myGrammar == null ) {
+		// 	InputStream input;
+		// 	File file = new File( SCHEMA_URI );
+		// 	if( file.exists() ) {
+		// 		try {
+		// 			input = new FileInputStream( file );
+		// 		}
+		// 		catch( Exception e ) {
+		// 			input = null;
+		// 		}
+		// 		if( input != null ) {
+		// 			myGrammar = addToGrammarPool( SCHEMA_URI, input );
+		// 		}
+		// 	}
+		// 	else {
+		// 		input = getClass().getResourceAsStream( SCHEMA_ROOT_URI );
+		// 		if( input != null ) {
+		// 			myGrammar = addToGrammarPool( SCHEMA_ROOT_URI, input );
+		// 		}
+		// 	}
+		// }
 		initParser();
 	}
 

@@ -39,13 +39,8 @@ import org.xml.sax.XMLReader;
 import org.msscf.msscf.v2_13.cflib.CFLib.CFLibNullArgumentException;
 
 /**
- *	An XmlCoreSaxParser is an abstract Xerces-J DefaultHandler
+ *	An XmlCoreSaxParser is an abstract JAXP DefaultHandler
  *	specialized for SAX2 parsing. 
- *
- *	Based on Xerces-J 2.8.0 "ParserAPIUsage.java" sample
- *	code published under Apache License 2.0.
- *
- *	@see	http://xerces.apache.org/
  */
 public abstract class CFLibXmlCoreSaxParser extends CFLibXmlCoreParser {
 
@@ -92,7 +87,7 @@ public abstract class CFLibXmlCoreSaxParser extends CFLibXmlCoreParser {
 	 */
 	protected void initParser() {
 		super.initParser();
-		final String S_ProcName = "initParser";
+		// final String S_ProcName = "initParser";
 
         try {
         	assert saxParser == null : "saxParser already exists";
@@ -104,20 +99,20 @@ public abstract class CFLibXmlCoreSaxParser extends CFLibXmlCoreParser {
 			spf.setValidating( true );
 			spf.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, false );
     		spf.setFeature( "http://xml.org/sax/features/validation", true );
-    		spf.setFeature( "http://apache.org/xml/features/validation/schema", true );
-    		spf.setFeature( "http://apache.org/xml/features/validation/schema/normalized-value", true );
+    		// spf.setFeature( "http://apache.org/xml/features/validation/schema", true );
+    		// spf.setFeature( "http://apache.org/xml/features/validation/schema/normalized-value", true );
 			
 			// Create a SAXParser
 			SAXParser sp = spf.newSAXParser();
 	    	sp.setProperty( "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 	    		"http://www.w3.org/2001/XMLSchema" );
-	    	sp.setProperty( "http://apache.org/xml/properties/internal/grammar-pool", getGrammarPool() );
+	    	// sp.setProperty( "http://apache.org/xml/properties/internal/grammar-pool", getGrammarPool() );
 			
 	    	XMLReader reader = sp.getXMLReader();
     		reader.setFeature( "http://xml.org/sax/features/validation", true );
-    		reader.setFeature( "http://apache.org/xml/features/validation/schema", true );
-    		reader.setFeature( "http://apache.org/xml/features/validation/schema/normalized-value", true );
-	    	reader.setProperty( "http://apache.org/xml/properties/internal/grammar-pool", getGrammarPool() );
+    		// reader.setFeature( "http://apache.org/xml/features/validation/schema", true );
+    		// reader.setFeature( "http://apache.org/xml/features/validation/schema/normalized-value", true );
+	    	// reader.setProperty( "http://apache.org/xml/properties/internal/grammar-pool", getGrammarPool() );
 
 	    	saxParser = sp;
         }

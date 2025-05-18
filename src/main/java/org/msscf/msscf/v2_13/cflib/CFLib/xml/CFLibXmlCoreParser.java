@@ -23,16 +23,8 @@
 
 package org.msscf.msscf.v2_13.cflib.CFLib.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
-import org.apache.xerces.parsers.XMLGrammarPreparser;
-import org.apache.xerces.util.XMLGrammarPoolImpl;
-import org.apache.xerces.xni.grammars.Grammar;
-import org.apache.xerces.xni.grammars.XMLGrammarDescription;
-import org.apache.xerces.xni.grammars.XMLGrammarPool;
-import org.apache.xerces.xni.parser.XMLInputSource;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -120,43 +112,43 @@ implements CFLibXmlCoreContextFactory
 	 */
 	private CFLibXmlCoreContextFactory xmlCoreContextFactory = null;
 
-	private static XMLGrammarPoolImpl grammarPool = new XMLGrammarPoolImpl();
+	// private static XMLGrammarPoolImpl grammarPool = new XMLGrammarPoolImpl();
 	
-	public static XMLGrammarPool getGrammarPool() {
-		return( grammarPool );
-	}
+	// public static XMLGrammarPool getGrammarPool() {
+	// 	return( grammarPool );
+	// }
 
-	public static Grammar addToGrammarPool( String name, InputStream input ) {
-		assert grammarPool != null;
+	// public static Grammar addToGrammarPool( String name, InputStream input ) {
+	// 	assert grammarPool != null;
 		
-		XMLGrammarPreparser preparser = new XMLGrammarPreparser();
-		preparser.setGrammarPool( grammarPool );
-		preparser.registerPreparser( XMLGrammarDescription.XML_SCHEMA, null );
-		Grammar grammar;
-        XMLInputSource inputSource = new XMLInputSource( "parseGrammar", name, name, input, "UTF-8" );
-        try {
-        	grammar = preparser.preparseGrammar( XMLGrammarDescription.XML_SCHEMA, inputSource );
-        }
-        catch( IOException e ) {
-        	grammar = null;
-        }
-        try {
-        	input.close();
-        }
-        catch( IOException e ) {
-        }
-        if( grammar != null ) {
-        	Grammar existingGrammar = grammarPool.retrieveGrammar( grammar.getGrammarDescription() );
-        	if( existingGrammar != null ) {
-        		grammar = existingGrammar;
-        	}
-        	else {
-        		grammarPool.putGrammar( grammar );
-        	}
-        }
+	// 	XMLGrammarPreparser preparser = new XMLGrammarPreparser();
+	// 	preparser.setGrammarPool( grammarPool );
+	// 	preparser.registerPreparser( XMLGrammarDescription.XML_SCHEMA, null );
+	// 	Grammar grammar;
+    //     XMLInputSource inputSource = new XMLInputSource( "parseGrammar", name, name, input, "UTF-8" );
+    //     try {
+    //     	grammar = preparser.preparseGrammar( XMLGrammarDescription.XML_SCHEMA, inputSource );
+    //     }
+    //     catch( IOException e ) {
+    //     	grammar = null;
+    //     }
+    //     try {
+    //     	input.close();
+    //     }
+    //     catch( IOException e ) {
+    //     }
+    //     if( grammar != null ) {
+    //     	Grammar existingGrammar = grammarPool.retrieveGrammar( grammar.getGrammarDescription() );
+    //     	if( existingGrammar != null ) {
+    //     		grammar = existingGrammar;
+    //     	}
+    //     	else {
+    //     		grammarPool.putGrammar( grammar );
+    //     	}
+    //     }
 		
-		return( grammar );
-	}
+	// 	return( grammar );
+	// }
 
 //	Constructors
 
