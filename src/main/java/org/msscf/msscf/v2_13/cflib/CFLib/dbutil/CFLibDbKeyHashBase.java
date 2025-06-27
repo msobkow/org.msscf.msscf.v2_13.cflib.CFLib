@@ -29,7 +29,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /**
- *
+ * Base class for CFLib database key hashes.
+ * 
+ * This foundation class provides essential support for n-digit hashes, usually based on the sizes of commmon hash algorithms like SHA-256, SHA-512, etc.
+ * It includes methods for byte manipulation, comparison, and static initialization of hash buffers.
+ * It is designed to be extended by specific hash implementations, such as CFLibDbKeyHash256 or CFLibDbKeyHash512.
+ * It also provides a consistent way to handle the underlying byte arrays, ensuring that all derived classes can be compared and manipulated uniformly.
+ * One issue is that the base class may provide the "gateway" for synchronization of the hash buffer attributes, so the static class data defined here is used as the thread synchronization coordinator, rather than attributes of the specialization classes.
+ * To be fair, whether is even an issue really depends on what the JDK and JVM fine-print processing rules say about such specific cases.
+ * 
  * @author msobkow
  */
 public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implements Comparator<T>, Comparable<T> {
@@ -181,6 +189,8 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
     return result;
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
   public boolean equals(Object aTest) {
     if (aTest == null) {
       return false;
@@ -281,6 +291,7 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public int compareTo(T o) {
     int result = compare((T)this, o);
     return result;
