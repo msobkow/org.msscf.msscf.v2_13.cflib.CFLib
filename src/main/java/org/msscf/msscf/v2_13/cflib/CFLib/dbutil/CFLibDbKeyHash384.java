@@ -86,7 +86,7 @@ public class CFLibDbKeyHash384 extends CFLibDbKeyHashBase<CFLibDbKeyHash384> imp
     }
   }
   
-  @Convert(converter = CFLibDbKeyHash384Converter.class)
+  // @Convert(converter = CFLibDbKeyHash384Converter.class)
   @Column(name = "bytes", nullable = false)
   protected byte[] bytes;
 

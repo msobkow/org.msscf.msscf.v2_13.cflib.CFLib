@@ -103,7 +103,7 @@ public class CFLibUuid6 implements java.io.Serializable, Comparable<CFLibUuid6> 
     @java.io.Serial
     private static final long serialVersionUID = 202504190939L;
 
-    @Convert(converter = CFLibUuid6Converter.class)
+    // @Convert(converter = CFLibUuid6Converter.class)
     @Column(name = "bytes", nullable = false)
     private final byte[] bytes = new byte[TOTAL_BYTES];
 

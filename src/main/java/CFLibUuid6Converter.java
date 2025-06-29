@@ -21,7 +21,7 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
+import org.msscf.msscf.v2_13.cflib.CFLib.dbutil.CFLibUuid6;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

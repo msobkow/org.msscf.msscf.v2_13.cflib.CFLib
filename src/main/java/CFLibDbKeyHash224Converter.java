@@ -21,21 +21,23 @@
  *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
  */
 
-package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
+// package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
+
+import org.msscf.msscf.v2_13.cflib.CFLib.dbutil.CFLibDbKeyHash224;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class CFLibDbKeyHash160Converter implements AttributeConverter<CFLibDbKeyHash160, byte[]> {
+public class CFLibDbKeyHash224Converter implements AttributeConverter<CFLibDbKeyHash224, byte[]> {
     
     @Override
-    public byte[] convertToDatabaseColumn(CFLibDbKeyHash160 attribute) {
+    public byte[] convertToDatabaseColumn(CFLibDbKeyHash224 attribute) {
         return attribute != null ? attribute.getBytes() : null;
     }
 
     @Override
-    public CFLibDbKeyHash160 convertToEntityAttribute(byte[] dbData) {
-        return dbData != null ? new CFLibDbKeyHash160(dbData) : null;
+    public CFLibDbKeyHash224 convertToEntityAttribute(byte[] dbData) {
+        return dbData != null ? new CFLibDbKeyHash224(dbData) : null;
     }
 }
