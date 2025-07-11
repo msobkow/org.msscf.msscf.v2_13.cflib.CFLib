@@ -32,13 +32,18 @@
       <version>${spring.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-orm</artifactId>
         <version>${orm.version}</version>
     </dependency>
     <!-- Do NOT include spring-boot-starter-data-jpa or any spring-boot JPA modules -->
     <!-- Use only the latest stable Jakarta JPA, not the version Spring Boot would default to -->
-    <dependency>
+    <!--dependency>
         <groupId>jakarta.persistence</groupId>
         <artifactId>jakarta.persistence-api</artifactId>
         <version>3.2.0</version>
@@ -52,7 +57,7 @@
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>6.3.0</version>
-    </dependency>
+    </dependency-->
     <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
