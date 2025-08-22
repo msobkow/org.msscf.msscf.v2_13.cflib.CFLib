@@ -1,24 +1,22 @@
 /*
- *	MSS Code Factory CFLib 2.13
+ *	MSS Code Factory CFLib DbUtil
  *
  *	Copyright (c) 2025 Mark Stephen Sobkow
  *
- *	This file is part of MSS Code Factory.
+ *	This file is part of MSS Code Factory 3.0.
  *
- *	MSS Code Factory is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU Lesser General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
+ *	MSS Code Factory 3.0 is free software: you can redistribute it and/or modify
+ *	it under the terms of the Apache v2.0 License as published by the Apache Foundation.
  *
- *	MSS Code Factory is distributed in the hope that it will be useful,
+ *	MSS Code Factory 3.0 is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU Lesser General Public License for more details.
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- *	You should have received a copy of the GNU Lesser General Public License
- *	along with MSS Code Factory.  If not, see https://www.gnu.org/licenses/.
+ *	You should have received a copy of the Apache v2.0 License along with
+ *	MSS Code Factory.  If not, see https://www.apache.org/licenses/LICENSE-2.0
  *
- *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing.
+ *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing or
+ *  customization.
  */
 
 package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
@@ -227,20 +225,7 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
     }
   }
 
-  public String asString() {
-    byte[] b = getBytes();
-    if (b == null) {
-      return "null";
-    }
-    StringBuilder sb = new StringBuilder(b.length * 2);
-    for (int i = 0; i < getHashLength(); i++) {
-      sb.append(hexDigits.charAt((b[i] & 0xF0) >>> 4));
-      sb.append(hexDigits.charAt(b[i] & 0x0F));
-    }
-    return sb.toString();
-  }
-
-  public void asString(StringBuilder sb) {
+  public void toString(StringBuilder sb) {
     // Construct and return the representive hex string
     byte[] b = getBytes();
     for (int i = 0; i < getHashLength(); i++) {
@@ -251,7 +236,16 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
 
   @Override
   public String toString() {
-    return asString();
+    byte[] b = getBytes();
+    if (b == null) {
+      return "null";
+    }
+    StringBuilder sb = new StringBuilder(b.length * 2);
+    for (int i = 0; i < getHashLength(); i++) {
+      sb.append(hexDigits.charAt((b[i] & 0xF0) >>> 4));
+      sb.append(hexDigits.charAt(b[i] & 0x0F));
+    }
+    return sb.toString();
   }
 
   @Override
@@ -295,10 +289,6 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
   public int compareTo(T o) {
     int result = compare((T)this, o);
     return result;
-  }
-
-  public byte[] fingerprint() {
-    return getBytes();
   }
 
   public abstract T deepClone();
