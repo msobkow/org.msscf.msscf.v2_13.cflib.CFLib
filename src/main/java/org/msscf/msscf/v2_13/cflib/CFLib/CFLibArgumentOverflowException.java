@@ -25,6 +25,7 @@ package org.msscf.msscf.v2_13.cflib.CFLib;
 
 import java.util.Calendar;
 import java.math.*;
+import java.time.LocalDate;
 
 public class CFLibArgumentOverflowException extends CFLibArgumentException {
 
@@ -243,6 +244,36 @@ public class CFLibArgumentOverflowException extends CFLibArgumentException {
 		String argName,
 		Calendar argValue,
 		Calendar maxValue,
+		Throwable th )
+	{
+		super( throwingClass, methName, argNo, argName,
+			"value " + argValue.toString()
+				+ " must be no more than "
+				+ maxValue.toString(),
+			th );
+	}
+
+	public CFLibArgumentOverflowException(
+		Class throwingClass,
+		String methName,
+		int argNo,
+		String argName,
+		LocalDate argValue,
+		LocalDate maxValue )
+	{
+		super( throwingClass, methName, argNo, argName,
+			"value " + argValue.toString()
+				+ " must be no more than "
+				+ maxValue.toString() );
+	}
+
+	public CFLibArgumentOverflowException(
+		Class throwingClass,
+		String methName,
+		int argNo,
+		String argName,
+		LocalDate argValue,
+		LocalDate maxValue,
 		Throwable th )
 	{
 		super( throwingClass, methName, argNo, argName,
