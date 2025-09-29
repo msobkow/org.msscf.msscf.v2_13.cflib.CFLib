@@ -162,7 +162,7 @@ public class CFLibUnsupportedClassException extends IllegalStateException {
 					+ (	( argObj == null )
 						?	" is null"
 						: 	" is a " + argObj.getClass().getName()
-								+ ", not a supprted instance of " + argExpectedClasses ) );
+								+ ", not a supported instance of " + ((argExpectedClasses != null) ? argExpectedClasses : "" )) );
 	}
 
 	public CFLibUnsupportedClassException(
@@ -181,7 +181,7 @@ public class CFLibUnsupportedClassException extends IllegalStateException {
 					+ (	( argObj == null )
 						?	" is null"
 						: 	" is a " + argObj.getClass().getName()
-								+ ", not a supprted instance of " + argExpectedClasses ),
+								+ ", not a supported instance of " + ((argExpectedClasses != null) ? argExpectedClasses : "" )),
 			th );
 	}
 }
