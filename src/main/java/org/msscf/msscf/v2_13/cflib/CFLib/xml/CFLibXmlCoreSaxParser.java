@@ -96,9 +96,9 @@ public abstract class CFLibXmlCoreSaxParser extends CFLibXmlCoreParser {
 			spf.setNamespaceAware( true );
 			spf.setXIncludeAware( false );
 			//spf.setSchema( schema );
-			spf.setValidating( true );
+			//spf.setValidating( true );
 			spf.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, false );
-    		spf.setFeature( "http://xml.org/sax/features/validation", true );
+    		//spf.setFeature( "http://xml.org/sax/features/validation", true );
     		// spf.setFeature( "http://apache.org/xml/features/validation/schema", true );
     		// spf.setFeature( "http://apache.org/xml/features/validation/schema/normalized-value", true );
 			
