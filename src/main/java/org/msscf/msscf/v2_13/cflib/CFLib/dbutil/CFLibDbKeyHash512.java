@@ -1,22 +1,24 @@
 /*
- *	MSS Code Factory CFLib DbUtil
+ *	MSS Code Factory CFLib 2.13 Common Application Functionality
  *
- *	Copyright (c) 2025 Mark Stephen Sobkow
- *
- *	This file is part of MSS Code Factory 3.0.
- *
- *	MSS Code Factory 3.0 is free software: you can redistribute it and/or modify
- *	it under the terms of the Apache v2.0 License as published by the Apache Foundation.
- *
- *	MSS Code Factory 3.0 is distributed in the hope that it will be useful,
+ *	Copyright (C) 2016-2025 Mark Stephen Sobkow (mailto:mark.sobkow@gmail.com)
+ *	
+ *	This program is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *	
+ *	This program is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
- *	You should have received a copy of the Apache v2.0 License along with
- *	MSS Code Factory.  If not, see https://www.apache.org/licenses/LICENSE-2.0
- *
- *	Contact Mark Stephen Sobkow at mark.sobkow@gmail.com for commercial licensing or
- *  customization.
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *	
+ *	You should have received a copy of the GNU General Public License
+ *	along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.
+ *	
+ *	If you wish to modify and use this code without publishing your changes,
+ *	or integrate it with proprietary code, please contact Mark Stephen Sobkow
+ *	for a commercial license at mark.sobkow@gmail.com
  */
 
 package org.msscf.msscf.v2_13.cflib.CFLib.dbutil;
