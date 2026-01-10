@@ -81,7 +81,7 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
       hashBuffer = new ByteBuffer[CONCURRENT_DIGESTS];
       CFLibDbHostAddr.initAddrHeader();
       long pid = ProcessHandle.current().pid();
-      long tid = Thread.currentThread().threadId();
+      long tid = Thread.currentThread().getId();
       for (int i = 0; i < CONCURRENT_DIGESTS; i++) {
         CFLibUuid6 u = CFLibUuid6.generateUuid6();
         hashBuffer[i] = ByteBuffer.allocate(TOTAL_BYTES);
@@ -162,7 +162,7 @@ public abstract class CFLibDbKeyHashBase<T extends CFLibDbKeyHashBase<T>> implem
       while (true) {
         counter++;
         hashBuffer[thid].putLong(COUNTER_INDEX, counter);
-        hashBuffer[thid].putLong(THREAD_INDEX, Thread.currentThread().threadId());
+        hashBuffer[thid].putLong(THREAD_INDEX, Thread.currentThread().getId());
         hashBuffer[thid].putLong(RANDBYTES_INDEX, (long) (Math.random() * Long.MAX_VALUE));
         getM()[thid].update(hashBuffer[thid].array(), 0, TOTAL_BYTES);
 
