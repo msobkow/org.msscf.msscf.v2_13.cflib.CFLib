@@ -22,6 +22,8 @@
     <orm.version>6.2.8</orm.version>
     <xerces.version>2.12.2</xerces.version>
     <junit-jupiter.version>5.12.2</junit-jupiter.version>
+	<commons-codec.version>1.21.0</commons-codec.version>
+	<commons-text.version>1.15.0</commons-text.version>
   </properties>
 
   <dependencies>
@@ -64,11 +66,17 @@
         <version>42.7.7</version>
         <scope>runtime</scope>
     </dependency>
-    <dependency>
-    	<groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.18.0</version>
-    </dependency>
+	<dependency>
+		<groupId>commons-codec</groupId>
+		<artifactId>commons-codec</artifactId>
+		<version>${commons-codec.version}</version>
+		<scope>compile</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-text</artifactId>
+		<version>${commons-text.version}</version>
+	</dependency>
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
@@ -87,12 +95,12 @@
 		<repository>
 			<id>nexus-releases</id>
 			<name>Nexus release repository</name>
-			<url>http://nexus3.msobkow.github.io:8081/repository/msobkow.github.io-hosted/</url>
+			<url>http://nexus3.mcf.markhome.server:8081/repository/mcf.markhome.server-hosted/</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus-snapshots</id>
 			<name>Nexus release repository</name>
-			<url>http://nexus3.msobkow.github.io:8081/repository/msobkow.github.io-hosted/</url>
+			<url>http://nexus3.mcf.markhome.server:8081/repository/mcf.markhome.server-hosted/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -128,7 +136,7 @@
 				</executions>
 				<configuration>
 					<serverId>nexus</serverId>
-					<nexusUrl>http://nexus3.msobkow.github.io:8081/repository/msobkow.github.io-hosted/</nexusUrl>
+					<nexusUrl>http://nexus3.mcf.markhome.server:8081/repository/mcf.markhome.server-hosted/</nexusUrl>
 					<skipStaging>true</skipStaging>
 				</configuration>
 			</plugin>
