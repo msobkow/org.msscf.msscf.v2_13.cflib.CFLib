@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.msscf.msscf</groupId>
     <artifactId>org.msscf.msscf.v2_13</artifactId>
-    <version>2.13.42-alpha13-202610162030</version>
+    <version>2.13.42-alpha13-202610170845</version>
   </parent>
 
   <groupId>org.msscf.msscf.v2_13</groupId>
   <artifactId>org.msscf.msscf.v2_13.cflib.CFLib</artifactId>
-  <version>2.13.42-alpha13-202610162030</version>
+  <version>2.13.42-alpha13-202610170845</version>
   <name>org.msscf.msscf.v2_13.cflib.CFLib</name>
   <description>MSS Code Factory 2.13 CFLib - Common Application Library</description>
   <url>https://msscode.com/</url>
